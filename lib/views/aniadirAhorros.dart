@@ -49,11 +49,21 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
               ),
               CupertinoTextField(
                 placeholder: 'Cantidad',
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.numberWithOptions(
+                    decimal: true, signed: true),
                 onChanged: (value) {
                   setState(() {
-                    _cantidad = double.tryParse(value) ?? 0.0;
-                    _cantidadError = null;
+                    final parsed = double.tryParse(value);
+                    if (parsed == null) {
+                      _cantidadError = 'Introduce un número válido.';
+                      _cantidad = 0.0;
+                    } else if (parsed <= 0) {
+                      _cantidadError = 'La cantidad debe ser mayor que 0.';
+                      _cantidad = parsed;
+                    } else {
+                      _cantidad = parsed;
+                      _cantidadError = null;
+                    }
                   });
                 },
               ),
@@ -119,9 +129,9 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
   }
 
   bool _validarCantidad() {
-    if (_cantidad == 0.0) {
+    if (_cantidad <= 0) {
       setState(() {
-        _cantidadError = 'Por favor, ingresa la cantidad';
+        _cantidadError = 'Por favor, ingresa una cantidad mayor que 0.';
       });
       return false;
     }
