@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tfg_ivandelllanoblanco/components/crear_metas.dart';
+import 'package:tfg_ivandelllanoblanco/components/dialogoMetas.dart';
 import 'package:tfg_ivandelllanoblanco/components/eliminar_metas.dart';
 import 'package:tfg_ivandelllanoblanco/components/mensaje_listametas_vacia.dart';
 import 'package:tfg_ivandelllanoblanco/components/modificar_metas.dart';
@@ -9,9 +10,7 @@ import 'package:tfg_ivandelllanoblanco/controllers/metascontrollador.dart';
 import 'package:tfg_ivandelllanoblanco/components/lista_metas.dart';
 import '../entitdades/informacionMetas.dart';
 
-// Widget principal que gestiona la vista de las metas
 class MetasVista extends StatefulWidget {
-  // Constructor de la clase
   const MetasVista({super.key});
 
   @override
@@ -19,23 +18,17 @@ class MetasVista extends StatefulWidget {
 }
 
 class MetasViewState extends State<MetasVista> {
-  // Instanciamos del controlador para gestionar las metas
   final MetasControlador controlador = MetasControlador();
-
-  // Lista de metas obtenidas desde el controlador
   List<Map<String, dynamic>> metas = [];
 
   @override
   void initState() {
     super.initState();
-    // Cargamos las metas cuando se inicia el widget
     _cargarMetas();
   }
 
-  // Método para cargar las metas desde el controlador
   Future<void> _cargarMetas() async {
     final metasData = await controlador.obtenerMetas();
-    // Actualizamos la lista de metas con las metas obtenidas
     setState(() {
       metas = metasData;
     });
@@ -51,11 +44,11 @@ class MetasViewState extends State<MetasVista> {
       child: SafeArea(
         child: Column(
           children: [
-            // Si la lista de metas está vacía, mostramos un mensaje con la opción de añadir una nueva meta
             if (metas.isEmpty)
               Expanded(
                 child: MensajeVacioMetas(
-                  onAniadirMeta: () => mostrarCupertinoDialog(context),
+                  onAniadirMeta: () =>
+                      mostrarDialogoCrearModificarMeta(context),
                 ),
               )
             else ...[
@@ -74,13 +67,13 @@ class MetasViewState extends State<MetasVista> {
                     CupertinoButton(
                       padding: EdgeInsets.zero,
                       child: const Icon(Icons.add),
-                      onPressed: () => mostrarCupertinoDialog(context),
+                      onPressed: () =>
+                          mostrarDialogoCrearModificarMeta(context),
                     ),
                   ],
                 ),
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-              // Lista de metas
               Expanded(
                 child: ListaMetas(
                   metas: metas,
@@ -118,27 +111,24 @@ class MetasViewState extends State<MetasVista> {
     );
   }
 
-  //diálogo con las opciones para una meta
   void _mostrarOpcionesMeta(Map<String, dynamic> meta) {
     OpcionesMetaDialog.mostrarOpcionesMeta(context, meta, this);
   }
 
-  //  metodo para eliminar una meta de la lista
   void eliminarItemMeta(int id) {
     EliminarMetaDialog.eliminarItemMeta(
         context, id, this, controlador, _cargarMetas);
   }
 
-  //Widget para crear una meta
-  Widget crearItemMeta(Informacionmetas? meta) {
-    return CrearItemMetaWidget.crearItemMeta(meta);
-  }
-
-  //Metodo para modificar una meta
-  void mostrarCupertinoDialog(BuildContext context,
+  void mostrarDialogoCrearModificarMeta(BuildContext context,
       {Map<String, dynamic>? meta}) {
-    CupertinoMetaDialog.mostrarCupertinoDialog(
-        context, this, controlador, _cargarMetas,
-        meta: meta);
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => DialogoMetas(
+        controlador: controlador,
+        onMetaGuardada: _cargarMetas,
+        meta: meta,
+      ),
+    );
   }
 }

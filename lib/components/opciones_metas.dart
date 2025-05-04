@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:tfg_ivandelllanoblanco/views/metas.dart';
 
 class OpcionesMetaDialog {
@@ -14,7 +15,7 @@ class OpcionesMetaDialog {
               child: const Text('Actualizar'),
               onPressed: () {
                 Navigator.pop(context);
-                metasView.mostrarCupertinoDialog(context, meta: meta);
+                metasView.mostrarDialogoCrearModificarMeta(context, meta: meta);
               },
             ),
             CupertinoActionSheetAction(
