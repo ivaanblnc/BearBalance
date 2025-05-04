@@ -28,6 +28,19 @@ class PerfilControlador {
     }
   }
 
+  //Metodo para obtener los nombres de usuario registrados
+  Future<List<Map<String, dynamic>>?> obtenerNombresUsuario() async {
+    try {
+      final respuesta = await _supabase
+          .from('usuarios')
+          .select('nombre_usuario') as List<dynamic>;
+
+      return respuesta.cast<Map<String, dynamic>>();
+    } catch (e) {
+      return null;
+    }
+  }
+
   //Metodo para actualizar los datos del usuario
   Future<Map<String, dynamic>?> actualizarDatosUsuario(
       Map<String, dynamic> datosActualizados) async {

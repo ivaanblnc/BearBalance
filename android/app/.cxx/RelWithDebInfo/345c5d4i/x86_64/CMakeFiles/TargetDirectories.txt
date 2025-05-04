@@ -1,0 +1,2 @@
+C:/Users/Ivan/Documents/TFG_IvanDelLLanoBlanco/tfg_ivandelllanoblanco/android/app/.cxx/RelWithDebInfo/345c5d4i/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/Ivan/Documents/TFG_IvanDelLLanoBlanco/tfg_ivandelllanoblanco/android/app/.cxx/RelWithDebInfo/345c5d4i/x86_64/CMakeFiles/rebuild_cache.dir

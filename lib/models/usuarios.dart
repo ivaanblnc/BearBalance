@@ -50,6 +50,7 @@ class RegistroModelo {
         'apellidos': apellidos,
         'correo_electronico': correoElectronico,
         'nombre_usuario': nombreUsuario,
+        'contrasena': contrasena,
       });
     } on AuthException catch (e) {
       throw Exception("Error de autenticación: ${e.message}");
