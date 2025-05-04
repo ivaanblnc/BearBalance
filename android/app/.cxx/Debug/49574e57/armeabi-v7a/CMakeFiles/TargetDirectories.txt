@@ -1,0 +1,2 @@
+C:/Users/Ivan/Documents/TFG_IvanDelLLanoBlanco/tfg_ivandelllanoblanco/android/app/.cxx/Debug/49574e57/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/Ivan/Documents/TFG_IvanDelLLanoBlanco/tfg_ivandelllanoblanco/android/app/.cxx/Debug/49574e57/armeabi-v7a/CMakeFiles/rebuild_cache.dir
