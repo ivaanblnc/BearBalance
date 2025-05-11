@@ -152,17 +152,25 @@ class CupertinoAhorroDialogo {
     showCupertinoModalPopup(
       context: contextoDialogo,
       builder: (BuildContext builder) {
-        return Container(
-          height: MediaQuery.of(contextoDialogo).copyWith().size.height * 0.25,
-          color: CupertinoColors.white,
-          child: CupertinoDatePicker(
-            mode: CupertinoDatePickerMode.date,
-            initialDateTime: fechaInicial,
-            onDateTimeChanged: (DateTime nuevaFecha) {
-              actualizarEstado(() {
-                onFechaSeleccionada(nuevaFecha);
-              });
-            },
+        final brightness = CupertinoTheme.of(contextoDialogo).brightness;
+
+        return CupertinoTheme(
+          data: CupertinoThemeData(
+            brightness: brightness,
+          ),
+          child: Container(
+            height: MediaQuery.of(contextoDialogo).size.height * 0.25,
+            color:
+                CupertinoColors.systemBackground.resolveFrom(contextoDialogo),
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.date,
+              initialDateTime: fechaInicial,
+              onDateTimeChanged: (DateTime nuevaFecha) {
+                actualizarEstado(() {
+                  onFechaSeleccionada(nuevaFecha);
+                });
+              },
+            ),
           ),
         );
       },

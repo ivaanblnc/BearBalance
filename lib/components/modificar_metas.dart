@@ -56,19 +56,26 @@ class CupertinoMetaDialog {
                       showCupertinoModalPopup(
                         context: context,
                         builder: (BuildContext builder) {
-                          return Container(
-                            height:
-                                MediaQuery.of(context).copyWith().size.height *
-                                    0.25,
-                            color: CupertinoColors.white,
-                            child: CupertinoDatePicker(
-                              mode: CupertinoDatePickerMode.date,
-                              initialDateTime: fechaMeta,
-                              onDateTimeChanged: (DateTime newDate) {
-                                setState(() {
-                                  fechaMeta = newDate;
-                                });
-                              },
+                          final brightness =
+                              CupertinoTheme.of(context).brightness;
+
+                          return CupertinoTheme(
+                            data: CupertinoThemeData(
+                              brightness: brightness,
+                            ),
+                            child: Container(
+                              height: MediaQuery.of(context).size.height * 0.25,
+                              color: CupertinoColors.systemBackground
+                                  .resolveFrom(context),
+                              child: CupertinoDatePicker(
+                                mode: CupertinoDatePickerMode.date,
+                                initialDateTime: fechaMeta,
+                                onDateTimeChanged: (DateTime newDate) {
+                                  setState(() {
+                                    fechaMeta = newDate;
+                                  });
+                                },
+                              ),
                             ),
                           );
                         },

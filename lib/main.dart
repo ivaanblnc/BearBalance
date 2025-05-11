@@ -39,7 +39,7 @@ class _MainAppState extends State<MainApp> {
   // Variables
   bool _sesionIniciada = false;
   bool _cargando = true;
-  String _nombreUsuario = ""; // Variable para almacenar el nombre de usuario
+  String _nombreUsuario = "";
 
   @override
   void initState() {
@@ -85,9 +85,8 @@ class _MainAppState extends State<MainApp> {
 
     // Pasamos el nombre de usuario real (no el predeterminado) a la página de inicio
     return CupertinoApp(
-      home: _sesionIniciada
-          ? PaginaInicioVista(_nombreUsuario) // Usamos el nombre real aquí
-          : InicioSesion(),
+      home:
+          _sesionIniciada ? PaginaInicioVista(_nombreUsuario) : InicioSesion(),
       routes: {
         '/login': (context) => InicioSesion(),
       },

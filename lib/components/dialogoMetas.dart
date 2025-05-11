@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tfg_ivandelllanoblanco/controllers/cambiarTema.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/metascontrollador.dart';
+import 'package:provider/provider.dart';
 
 class DialogoMetas extends StatefulWidget {
   final MetasControlador controlador;
@@ -59,19 +61,25 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext builder) {
+        final esOscuro = Provider.of<CambiarTema>(context).modoOscuro;
         return Container(
           height: MediaQuery.of(context).copyWith().size.height * 0.25,
-          color: CupertinoColors.white,
-          child: CupertinoDatePicker(
-            mode: CupertinoDatePickerMode.date,
-            initialDateTime: _fechaLimite,
-            onDateTimeChanged: (DateTime newDate) {
-              setState(() {
-                _fechaLimite = newDate;
-                _fechaLimiteController.text =
-                    "${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')}";
-              });
-            },
+          color: CupertinoTheme.of(context).scaffoldBackgroundColor,
+          child: CupertinoTheme(
+            data: CupertinoThemeData(
+              brightness: esOscuro ? Brightness.dark : Brightness.light,
+            ),
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.date,
+              initialDateTime: _fechaLimite,
+              onDateTimeChanged: (DateTime newDate) {
+                setState(() {
+                  _fechaLimite = newDate;
+                  _fechaLimiteController.text =
+                      "${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')}";
+                });
+              },
+            ),
           ),
         );
       },
