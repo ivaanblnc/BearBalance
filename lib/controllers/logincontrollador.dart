@@ -50,7 +50,6 @@ class LoginControlador {
 
   //Metodo para iniciar sesion con el OAUHT de Google
   Future<void> loginConGoogle(BuildContext context) async {
-    print("Botón de Google presionado");
     final respuesta = await modelo.loginConGoogle();
     //Si la respuesta no es null, significa que se inicio correctamente
     if (respuesta) {
@@ -67,14 +66,10 @@ class LoginControlador {
         final correo = user.email;
         String nuevoNombreUsuario = "nuevousuario${Random().nextInt(99999)}";
 
-        print(
-            "Datos obtenidos del usuario: nombre: $nombre, correo: $correo, imagen: $imagen, id: $id");
-
         try {
           final respuesta = await modelo.obtenerNombreUsuario(id);
           //Comprobamos que el usuario no exista ya en la base de datos
           if (respuesta == null || respuesta.isEmpty) {
-            print("El usuario no existe");
             //Insertamos el nuevo usuario en la base de datos
             await modelo.insertarUsuario({
               'id': id,
@@ -85,10 +80,8 @@ class LoginControlador {
               'imagen_perfil': imagen,
               'contrasena': 'oauth_login'
             });
-            print("Usuario insertado correctamente");
             nombreUsuario = nuevoNombreUsuario;
           } else {
-            print("El usuario ya existe en la base de datos");
             nombreUsuario = respuesta['nombre_usuario'] as String;
           }
           //Si el widget sigue activo

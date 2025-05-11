@@ -2,11 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tfg_ivandelllanoblanco/models/usuarios.dart';
 
-// Clase para gestionar el registro de usuarios
 class RegistroControlador {
   final RegistroModelo modelo = RegistroModelo();
 
-  //Método para registrar un nuevo usuario
   Future<void> registrarUsuario(
       String nombre,
       String apellidos,
@@ -21,11 +19,11 @@ class RegistroControlador {
         context: context,
         builder: (builder) {
           return CupertinoAlertDialog(
-            title: Text("Enhorabuena"),
-            content: Text("Usuario registrado correctamente"),
+            title: const Text("Enhorabuena"),
+            content: const Text("Usuario registrado correctamente"),
             actions: [
               CupertinoDialogAction(
-                child: Text("Aceptar"),
+                child: const Text("Aceptar"),
                 onPressed: () => Navigator.pop(context),
               ),
             ],
@@ -33,38 +31,55 @@ class RegistroControlador {
         },
       );
     } on AuthException catch (e) {
-      showCupertinoDialog(
-        context: context,
-        builder: (builder) {
-          return CupertinoAlertDialog(
-            title: Text("Error"),
-            content: Text("Error al registrar usuario: ${e.message}"),
-            actions: [
-              CupertinoDialogAction(
-                child: Text("Aceptar"),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          );
-        },
-      );
+      String mensajeError = "Error al registrar usuario.";
+      if (e.message
+          .contains('duplicate key value violates unique constraint')) {
+        if (e.message.contains('users_email_key')) {
+          mensajeError = "El correo electrónico ya está registrado.";
+        } else if (e.message.contains('users_username_key')) {
+          mensajeError = "El nombre de usuario ya existe.";
+        }
+      } else if (e.message.contains('User already registered')) {
+        mensajeError = "El usuario ya está registrado.";
+      } else if (e.message.contains('invalid email') ||
+          e.message.contains('Unable to validate email address')) {
+        mensajeError = "El correo electrónico no es válido.";
+      } else if (e.message
+          .contains('Password should be at least 6 characters')) {
+        mensajeError = "La contraseña debe tener al menos 6 caracteres.";
+      } else if (e.message.contains('empty email') ||
+          e.message.contains('empty password')) {
+        mensajeError =
+            "Por favor, introduce el correo electrónico y la contraseña.";
+      } else if (e.message.contains('Anonymous sign-ins are disabled')) {
+        mensajeError = "El registro anónimo está deshabilitado.";
+      }
+      _mostrarErrorDialog(context, mensajeError);
     } catch (e) {
-      showCupertinoDialog(
-        // ignore: use_build_context_synchronously
-        context: context,
-        builder: (builder) {
-          return CupertinoAlertDialog(
-            title: Text("Error"),
-            content: Text("Error al registrar usuario: $e"),
-            actions: [
-              CupertinoDialogAction(
-                child: Text("Aceptar"),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          );
-        },
-      );
+      String mensajeError =
+          "Ocurrió un error inesperado durante el registro: ${e.toString()}";
+      if (e.toString().contains('Anonymous sign-ins are disabled')) {
+        mensajeError = "El registro anónimo está deshabilitado.";
+      }
+      _mostrarErrorDialog(context, mensajeError);
     }
+  }
+
+  void _mostrarErrorDialog(BuildContext context, String mensaje) {
+    showCupertinoDialog(
+      context: context,
+      builder: (builder) {
+        return CupertinoAlertDialog(
+          title: const Text("Error"),
+          content: Text(mensaje),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text("Aceptar"),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
