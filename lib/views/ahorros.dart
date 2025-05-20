@@ -75,19 +75,17 @@ class AhorrosVistaState extends State<AhorrosVista> {
                   context,
                   controlador,
                 );
-                if (fecha != null) {
+                setState(() {
+                  carga = true;
+                });
+                try {
+                  listaAhorros = await controlador.filtrarMovimientos((fecha != null) as DateTime);
+                } finally {
                   setState(() {
-                    carga = true;
+                    carga = false;
                   });
-                  try {
-                    listaAhorros = await controlador.filtrarMovimientos(fecha);
-                  } finally {
-                    setState(() {
-                      carga = false;
-                    });
-                  }
                 }
-              },
+                            },
               child: Icon(Icons.filter_alt),
             ),
           ],

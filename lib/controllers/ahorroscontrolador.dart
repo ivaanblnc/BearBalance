@@ -19,14 +19,9 @@ class AhorrosControlador {
       if (usuarioActual == null) {
         throw Exception('Usuario no autenticado');
       }
-      //Obtenemos el id del usuario actual de la base de datos
-      final respuesta = await Supabase.instance.client
-          .from('usuarios')
-          .select('id')
-          .eq('correo_electronico', usuarioActual.email ?? '')
-          .single();
+      //Obtenemos el id del usuario actual
+      final idUsuario = usuarioActual.id;
 
-      final idUsuario = respuesta['id'];
       //Mapemaos el ahorro con el id del usuario
       //y lo agregamos a la base de datos
       final ahorroConUsuario = {...ahorro, 'usuario_id': idUsuario};

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../entitdades/informacionMetas.dart';
+import '../entidades/informacionMetas.dart';
 
 class CrearItemMetaWidget {
   static Widget crearItemMeta(Informacionmetas? meta) {

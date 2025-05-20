@@ -1,21 +1,20 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/cambiarTema.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/perfilControlador.dart';
-import 'package:tfg_ivandelllanoblanco/components/campo_error.dart';
+import 'package:tfg_ivandelllanoblanco/models/loginUsuario.dart';
 
 class DetallesPerfil extends StatefulWidget {
   final Map<String, dynamic> datosUsuario;
   final Future<void> Function(String columnaNombre, String nuevoValor)
       onCampoActualizado;
-  final BuildContext contexto;
 
   const DetallesPerfil({
     super.key,
     required this.datosUsuario,
     required this.onCampoActualizado,
-    required this.contexto,
   });
 
   @override
@@ -23,34 +22,40 @@ class DetallesPerfil extends StatefulWidget {
 }
 
 class _DetallesPerfilState extends State<DetallesPerfil> {
-  final Map<String, String?> _errores = {
-    'nombre': null,
-    'apellidos': null,
-    'nombre_usuario': null,
-    'correo_electronico': null,
-    'contrasena': null,
-  };
-
-  final Map<String, TextEditingController> _controllers = {};
+  // final _formKey = GlobalKey<FormState>();
+  late Map<String, TextEditingController> _controllers;
+  late Map<String, String?> _errores;
+  late InicioSesionModelo _inicioSesionModelo;
 
   @override
   void initState() {
     super.initState();
-    _controllers['nombre'] =
-        TextEditingController(text: widget.datosUsuario['nombre']);
-    _controllers['apellidos'] =
-        TextEditingController(text: widget.datosUsuario['apellidos']);
-    _controllers['nombre_usuario'] =
-        TextEditingController(text: widget.datosUsuario['nombre_usuario']);
-    _controllers['correo_electronico'] =
-        TextEditingController(text: widget.datosUsuario['correo_electronico']);
-    _controllers['contrasena'] =
-        TextEditingController(text: widget.datosUsuario['contrasena']);
+    _inicioSesionModelo = InicioSesionModelo();
+    _controllers = {
+      'nombre': TextEditingController(text: widget.datosUsuario['nombre'] ?? ''),
+      'apellidos':
+          TextEditingController(text: widget.datosUsuario['apellidos'] ?? ''),
+      'nombre_usuario': TextEditingController(
+          text: widget.datosUsuario['nombre_usuario'] ?? ''),
+      'email': TextEditingController(text: Supabase.instance.client.auth.currentUser?.email ?? widget.datosUsuario['email'] ?? ''), // Prioritize current auth email
+      'contrasena': TextEditingController(), // Contraseña no se precarga
+    };
+    _errores = {};
+  }
+
+  void _mostrarMensaje(BuildContext scaffoldContext, String mensaje, {bool esError = false}) {
+    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+      SnackBar(
+        content: Text(mensaje),
+        backgroundColor: esError ? CupertinoColors.destructiveRed : CupertinoColors.activeGreen,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
   void dispose() {
-    _controllers.values.forEach((controller) => controller.dispose());
+    _controllers.forEach((_, controller) => controller.dispose());
     super.dispose();
   }
 
@@ -65,35 +70,99 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
       header: const Text("Información del Perfil"),
       children: [
         _construirFilaLista("Nombre", 'nombre', widget.datosUsuario['nombre'],
-            context, widget.onCampoActualizado, esModoOscuro),
+            context, (columna, nuevoValor) async {
+              try {
+                await widget.onCampoActualizado(columna, nuevoValor);
+                if (mounted) {
+                  setState(() {
+                    _errores[columna] = null;
+                    _controllers[columna]!.text = nuevoValor;
+                  });
+                }
+                _mostrarMensaje(context, "Campo actualizado correctamente.");
+              } catch (e) {
+                _mostrarMensaje(context, "No se pudo actualizar el campo: \n${e.toString()}", esError: true);
+              }
+            }, esModoOscuro),
         _construirFilaLista(
             "Apellidos",
             'apellidos',
             widget.datosUsuario['apellidos'],
             context,
-            widget.onCampoActualizado,
-            esModoOscuro),
+            (columna, nuevoValor) async {
+              try {
+                await widget.onCampoActualizado(columna, nuevoValor);
+                if (mounted) {
+                  setState(() {
+                    _errores[columna] = null;
+                    _controllers[columna]!.text = nuevoValor;
+                  });
+                }
+                _mostrarMensaje(context, "Campo actualizado correctamente.");
+              } catch (e) {
+                _mostrarMensaje(context, "No se pudo actualizar el campo: \n${e.toString()}", esError: true);
+              }
+            }, esModoOscuro),
         _construirFilaLista(
             "Nombre de usuario",
             'nombre_usuario',
             widget.datosUsuario['nombre_usuario'],
             context,
-            widget.onCampoActualizado,
-            esModoOscuro),
+            (columna, nuevoValor) async {
+              try {
+                await widget.onCampoActualizado(columna, nuevoValor);
+                if (mounted) {
+                  setState(() {
+                    _errores[columna] = null;
+                    _controllers[columna]!.text = nuevoValor;
+                  });
+                }
+                _mostrarMensaje(context, "Campo actualizado correctamente.");
+              } catch (e) {
+                _mostrarMensaje(context, "No se pudo actualizar el campo: \n${e.toString()}", esError: true);
+              }
+            }, esModoOscuro),
         _construirFilaLista(
-            "Email",
-            'correo_electronico',
-            widget.datosUsuario['correo_electronico'],
-            context,
-            widget.onCampoActualizado,
-            esModoOscuro),
+          "Email",
+          'email',
+          Supabase.instance.client.auth.currentUser?.email ?? '',
+          context,
+          (columna, nuevoEmail) async {
+            final loginModelo = InicioSesionModelo();
+            try {
+              await loginModelo.cambiarEmail(nuevoEmail);
+              if (mounted) {
+                setState(() {}); 
+              }
+              _mostrarMensaje(context, "Solicitud de cambio de correo electrónico procesada. Si es necesario, revisa tu bandeja de entrada para confirmar el cambio.");
+            } catch (e) {
+              _mostrarMensaje(context, e.toString(), esError: true);
+            }
+          },
+          esModoOscuro,
+        ),
         _construirFilaLista(
-            "Contraseña",
-            'contrasena',
-            widget.datosUsuario['contrasena'],
-            context,
-            widget.onCampoActualizado,
-            esModoOscuro),
+          "Contraseña",
+          'contrasena',
+          '', // No se muestra la contraseña actual
+          context,
+          (columna, nuevaContrasena) async {
+            final loginModelo = InicioSesionModelo();
+            try {
+              await loginModelo.cambiarContrasena(nuevaContrasena);
+              if (mounted) {
+                setState(() {
+                  _errores['contrasena'] = null;
+                  _controllers['contrasena']!.clear(); // Limpiar el campo después de cambiar
+                });
+              }
+              _mostrarMensaje(context, "Contraseña actualizada correctamente.");
+            } catch (e) {
+              _mostrarMensaje(context, e.toString(), esError: true);
+            }
+          },
+          esModoOscuro,
+        ),
       ],
     );
   }
@@ -101,89 +170,124 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
   CupertinoListTile _construirFilaLista(
     String titulo,
     String nombreCampo,
-    String valor,
+    String valorActual,
     BuildContext contextoPadre,
     Future<void> Function(String columnaNombre, String nuevoValor)
         onCampoActualizado,
     bool esModoOscuro,
   ) {
-    final colorFilaOscuro = const Color(0xFF1E1E1E);
-    TextEditingController controlador = _controllers[nombreCampo]!;
-
     return CupertinoListTile(
       backgroundColor:
-          esModoOscuro ? colorFilaOscuro : CupertinoColors.systemGrey6,
+          esModoOscuro ? CupertinoColors.systemGrey5 : CupertinoColors.systemGrey6,
       title: Text(titulo,
           style: TextStyle(
               color: esModoOscuro
                   ? CupertinoColors.white
                   : CupertinoColors.black)),
-      additionalInfo: Text(valor,
+      subtitle: Text(valorActual,
           style: TextStyle(
               color: esModoOscuro
                   ? CupertinoColors.lightBackgroundGray
-                  : CupertinoColors.black)),
+                  : CupertinoColors.darkBackgroundGray)),
       onTap: () {
+        TextEditingController controladorDialog = TextEditingController(text: valorActual);
+        // Asegurarse de que _errores se limpia para este campo específico o se maneja adecuadamente
+        // antes de mostrar el diálogo para evitar mostrar errores antiguos.
+        if (_errores.containsKey(nombreCampo)) {
+          _errores.remove(nombreCampo); // Limpiar error previo para este campo
+        }
+
         showCupertinoDialog(
-          context: contextoPadre,
-          builder: (contextoDialogo) => StatefulBuilder(
-            builder: (BuildContext context, StateSetter setStateDialog) {
-              return CupertinoAlertDialog(
-                title: Text("Editar $titulo"),
-                content: Column(
-                  children: [
-                    CupertinoTextField(
-                      controller: controlador,
-                      placeholder: titulo,
-                      onChanged: (newValue) {
-                        setStateDialog(() {
-                          _errores[nombreCampo] = null;
-                        });
+          context: contextoPadre, // Usar el contexto del padre que tiene el Navigator
+          builder: (BuildContext contextoDialogo) {
+            // Usar StatefulBuilder para manejar el estado del mensaje de error dentro del diálogo
+            return StatefulBuilder(
+              builder: (contextoDialogoInterno, setStateDialog) {
+                return CupertinoAlertDialog(
+                  title: Text('Editar $titulo'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CupertinoTextField(
+                        controller: controladorDialog,
+                        placeholder: 'Nuevo $titulo',
+                        autofocus: true,
+                        obscureText: nombreCampo == 'contrasena',
+                        onChanged: (value) {
+                          // Limpiar el error cuando el usuario comienza a escribir
+                          if (_errores[nombreCampo] != null) {
+                            setStateDialog(() {
+                              _errores.remove(nombreCampo);
+                            });
+                          }
+                        },
+                      ),
+                      if (_errores[nombreCampo] != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            _errores[nombreCampo]!,
+                            style: const TextStyle(color: CupertinoColors.destructiveRed, fontSize: 12),
+                          ),
+                        ),
+                    ],
+                  ),
+                  actions: [
+                    CupertinoDialogAction(
+                      child: const Text("Cancelar"),
+                      onPressed: () => Navigator.pop(contextoDialogo),
+                    ),
+                    CupertinoDialogAction(
+                      child: const Text("Aceptar"),
+                      onPressed: () async {
+                        final nuevoValor = controladorDialog.text.trim();
+                        // Si el campo es email o contraseña, usar InicioSesionModelo
+                        if (nombreCampo == 'email') {
+                          try {
+                            // La comprobación de proveedor de Google ahora está en InicioSesionModelo
+                            await _inicioSesionModelo.cambiarEmail(nuevoValor); // Corregido: sin contextoPadre
+                            Navigator.pop(contextoDialogo); // Cerrar diálogo primero
+                            _mostrarMensaje(contextoPadre, "Solicitud de cambio de correo procesada. Revisa tu bandeja de entrada.");
+                            onCampoActualizado(nombreCampo, nuevoValor); // Actualizar UI localmente si es necesario
+                          } catch (e) {
+                            setStateDialog(() {
+                              _errores[nombreCampo] = e.toString().replaceFirst("Exception: ", "");
+                            });
+                          }
+                        } else if (nombreCampo == 'contrasena') {
+                          try {
+                            // La comprobación de proveedor de Google ahora está en InicioSesionModelo
+                            await _inicioSesionModelo.cambiarContrasena(nuevoValor); // Corregido: sin contextoPadre
+                            Navigator.pop(contextoDialogo);
+                            _mostrarMensaje(contextoPadre, "Contraseña actualizada correctamente.");
+                            // No se llama a onCampoActualizado para la contraseña, ya que no se muestra
+                          } catch (e) {
+                            setStateDialog(() {
+                              _errores[nombreCampo] = e.toString().replaceFirst("Exception: ", "");
+                            });
+                          }
+                        } else {
+                          // Para otros campos (nombre, apellidos, nombre_usuario)
+                          final error = await _validarCampo(nombreCampo, nuevoValor);
+                          if (error == null) {
+                            await onCampoActualizado(nombreCampo, nuevoValor);
+                            Navigator.pop(contextoDialogo);
+                            _mostrarMensaje(contextoPadre, "$titulo actualizado correctamente.");
+                          } else {
+                            setStateDialog(() {
+                              _errores[nombreCampo] = error;
+                            });
+                          }
+                        }
                       },
                     ),
-                    CampoError(mensaje: _errores[nombreCampo]),
                   ],
-                ),
-                actions: [
-                  CupertinoDialogAction(
-                    onPressed: () => Navigator.pop(contextoDialogo),
-                    child: const Text("Cancelar"),
-                  ),
-                  CupertinoDialogAction(
-                    onPressed: () async {
-                      String nuevoValor = controlador.text;
-                      String? error =
-                          await _validarCampo(nombreCampo, nuevoValor);
-
-                      if (error == null) {
-                        String columnaNombre = titulo.toLowerCase();
-                        if (columnaNombre == 'nombre de usuario') {
-                          columnaNombre = 'nombre_usuario';
-                        }
-                        if (columnaNombre == 'contraseña') {
-                          columnaNombre = 'contrasena';
-                        } else if (columnaNombre == 'email') {
-                          columnaNombre = 'correo_electronico';
-                        }
-                        await widget.onCampoActualizado(
-                            columnaNombre, nuevoValor);
-                        Navigator.pop(contextoDialogo);
-                      } else {
-                        setStateDialog(() {
-                          _errores[nombreCampo] = error;
-                        });
-                        Future.delayed(
-                            const Duration(milliseconds: 100), () {});
-                      }
-                    },
-                    child: const Text("Aceptar"),
-                  ),
-                ],
-              );
-            },
-          ),
+                );
+              },
+            );
+          },
         );
-      },
+      }, // End of onTap
     );
   }
 
@@ -220,7 +324,7 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
         }
 
         break;
-      case 'correo_electronico':
+      case 'email':
         if (valor.isEmpty) return 'El correo electrónico no puede estar vacío.';
         if (!valor.contains('@') || !valor.contains('.')) {
           return 'Formato de correo electrónico incorrecto.';

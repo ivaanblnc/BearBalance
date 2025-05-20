@@ -1,6 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tfg_ivandelllanoblanco/models/metas.dart';
-import 'package:tfg_ivandelllanoblanco/entitdades/informacionMetas.dart';
+import 'package:tfg_ivandelllanoblanco/entidades/informacionMetas.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 //Clase para gestionar las metas del usuario junto con la base de datos

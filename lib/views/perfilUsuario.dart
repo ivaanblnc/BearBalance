@@ -107,7 +107,6 @@ class _PerfilVistaState extends State<PerfilVista> {
                     DetallesPerfil(
                       datosUsuario: datosUsuario!,
                       onCampoActualizado: _actualizarCampo,
-                      contexto: context,
                     ),
 
                     SizedBox(height: MediaQuery.of(context).size.height * 0.02),

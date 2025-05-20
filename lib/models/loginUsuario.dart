@@ -38,7 +38,12 @@ class InicioSesionModelo {
   //Metodo para insertar un nuevo usuario en la base de datos
   Future<void> insertarUsuario(Map<String, dynamic> datosUsuario) async {
     try {
-      final respuesta = await _supabase.from('usuarios').insert(datosUsuario);
+      // Eliminamos el campo 'contrasena' si existe
+      final datosSinContrasena = Map<String, dynamic>.from(datosUsuario);
+      datosSinContrasena.remove('contrasena');
+
+      final respuesta =
+          await _supabase.from('usuarios').insert(datosSinContrasena);
 
       if (respuesta.data == null || (respuesta.data as List).isEmpty) {
         throw Exception('Error al insertar el usuario: respuesta vacía');
@@ -71,6 +76,55 @@ class InicioSesionModelo {
     } catch (e) {
       print("Error en loginConGoogle");
       return false;
+    }
+  }
+
+  // Método para cambiar la contraseña del usuario autenticado
+  Future<void> cambiarContrasena(String nuevaContrasena) async {
+    try {
+      final usuario = _supabase.auth.currentUser;
+      if (usuario == null) {
+        throw Exception('No hay usuario autenticado');
+      }
+      // Si el usuario es de Google, no puede cambiar la contraseña
+      if (usuario.appMetadata['provider'] == 'google') {
+        throw Exception('No puedes cambiar la contraseña de una cuenta de Google.');
+      }
+      final response = await _supabase.auth.updateUser(
+        UserAttributes(password: nuevaContrasena),
+      );
+      if (response.user == null) {
+        throw Exception('No se pudo actualizar la contraseña. Vuelve a iniciar sesión e inténtalo de nuevo.');
+      }
+      print("Contraseña actualizada correctamente");
+    } catch (e) {
+      print("Error al cambiar la contraseña: \x1B[31m${e.toString()}\x1B[0m");
+      rethrow;
+    }
+  }
+
+  // Método para cambiar el email del usuario autenticado
+  Future<void> cambiarEmail(String nuevoEmail) async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) {
+        throw Exception('Usuario no autenticado.');
+      }
+      // Si el usuario es de Google, no puede cambiar el email
+      if (user.appMetadata['provider'] == 'google') {
+        throw Exception('No puedes cambiar el correo electrónico de una cuenta de Google.');
+      }
+      final response = await _supabase.auth.updateUser(
+        UserAttributes(email: nuevoEmail),
+      );
+      if (response.user == null) {
+        throw Exception('No se pudo actualizar el correo electrónico. Vuelve a iniciar sesión e inténtalo de nuevo.');
+      }
+      // Si el email requiere confirmación, el nuevo email no será inmediatamente visible en response.user.email
+      // Supabase puede enviar un correo de confirmación.
+      print("Solicitud de cambio de correo electrónico procesada. Si es necesario, revisa tu bandeja de entrada para confirmar el cambio.");
+    } catch (e) {
+      throw Exception(e.toString());
     }
   }
 }

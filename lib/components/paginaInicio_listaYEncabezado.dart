@@ -4,7 +4,7 @@ import 'package:tfg_ivandelllanoblanco/components/grafico_paginaInicial.dart';
 import 'package:tfg_ivandelllanoblanco/components/mensaje_listametas_vacia.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/ahorroscontrolador.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/metascontrollador.dart';
-import 'package:tfg_ivandelllanoblanco/entitdades/Ahorros.dart';
+import 'package:tfg_ivandelllanoblanco/entidades/Ahorros.dart';
 import '../components/lista_metas.dart';
 
 class PaginaInicioContenido extends StatelessWidget {

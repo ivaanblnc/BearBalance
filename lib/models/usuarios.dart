@@ -14,27 +14,18 @@ class RegistroModelo {
     String contrasena,
   ) async {
     try {
-      // Verifica si el correo electrónico o el nombre de usuario ya existen
-      final existeCorreo = await _supabase
-          .from('usuarios')
-          .select()
-          .eq('correo_electronico', correoElectronico)
-          .maybeSingle();
-
+      // Verifica si el nombre de usuario ya existe
       final existeNombreUsuario = await _supabase
           .from('usuarios')
           .select()
           .eq('nombre_usuario', nombreUsuario)
           .maybeSingle();
 
-      if (existeCorreo != null) {
-        throw Exception("El correo electrónico ya existe.");
-      }
-
       if (existeNombreUsuario != null) {
         throw Exception("El nombre de usuario ya existe.");
       }
 
+      // Llama a Supabase Auth para registrar al usuario
       final respuestaSignUp = await _supabase.auth.signUp(
         email: correoElectronico,
         password: contrasena,
@@ -44,13 +35,12 @@ class RegistroModelo {
         throw Exception("Error al registrar usuario en autenticación.");
       }
 
+      // Inserta los datos adicionales en la tabla 'usuarios'
       await _supabase.from('usuarios').insert({
         'id': respuestaSignUp.user!.id,
         'nombre': nombre,
         'apellidos': apellidos,
-        'correo_electronico': correoElectronico,
         'nombre_usuario': nombreUsuario,
-        'contrasena': contrasena,
       });
     } on AuthException catch (e) {
       throw Exception("Error de autenticación: ${e.message}");

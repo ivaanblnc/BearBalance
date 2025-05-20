@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../controllers/metascontrollador.dart';
-import '../entitdades/informacionMetas.dart';
+import '../entidades/informacionMetas.dart';
 
 class ListaMetas extends StatelessWidget {
   final List<Map<String, dynamic>> metas;

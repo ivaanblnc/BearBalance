@@ -63,7 +63,6 @@ class LoginControlador {
         final id = user.id;
         final nombre = user.userMetadata?["full_name"] ?? "Usuario";
         final imagen = user.userMetadata?["avatar_url"] ?? "";
-        final correo = user.email;
         String nuevoNombreUsuario = "nuevousuario${Random().nextInt(99999)}";
 
         try {
@@ -76,10 +75,9 @@ class LoginControlador {
               'nombre_usuario': nuevoNombreUsuario,
               'nombre': nombre,
               'apellidos': nombre,
-              'correo_electronico': correo,
               'imagen_perfil': imagen,
-              'contrasena': 'oauth_login'
             });
+            print('Nuevo usuario insertado en la tabla de usuarios');
             nombreUsuario = nuevoNombreUsuario;
           } else {
             nombreUsuario = respuesta['nombre_usuario'] as String;

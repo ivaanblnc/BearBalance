@@ -1,14 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:tfg_ivandelllanoblanco/components/crear_metas.dart';
 import 'package:tfg_ivandelllanoblanco/components/dialogoMetas.dart';
 import 'package:tfg_ivandelllanoblanco/components/eliminar_metas.dart';
 import 'package:tfg_ivandelllanoblanco/components/mensaje_listametas_vacia.dart';
-import 'package:tfg_ivandelllanoblanco/components/modificar_metas.dart';
 import 'package:tfg_ivandelllanoblanco/components/opciones_metas.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/metascontrollador.dart';
 import 'package:tfg_ivandelllanoblanco/components/lista_metas.dart';
-import '../entitdades/informacionMetas.dart';
 
 class MetasVista extends StatefulWidget {
   const MetasVista({super.key});

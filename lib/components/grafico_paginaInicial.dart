@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
-import '../entitdades/Ahorros.dart';
+import '../entidades/Ahorros.dart';
+// import 'package:tfg_ivandelllanoblanco/models/themeProvider.dart'; // File not found, commented out for now
+// import 'package:provider/provider.dart'; // Unused import
 
 class GraficoAhorros extends StatelessWidget {
   final List<Ahorros> ahorrosList;
