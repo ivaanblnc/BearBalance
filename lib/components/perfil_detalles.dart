@@ -1,12 +1,14 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tfg_ivandelllanoblanco/controllers/cambiarTema.dart';
 import 'package:tfg_ivandelllanoblanco/models/loginUsuario.dart';
 
 class DetallesPerfil extends StatefulWidget {
   final Map<String, dynamic> datosUsuario;
   final Future<void> Function(String columnaNombre, String nuevoValor)
       onCampoActualizado;
-  final BuildContext contexto; // Contexto de PerfilUsuario para ScaffoldMessenger
+  final BuildContext contexto;
 
   const DetallesPerfil({
     super.key,
@@ -23,27 +25,30 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
   late Map<String, TextEditingController> _controllers;
   late Map<String, String?> _errores;
   late InicioSesionModelo _inicioSesionModelo;
+  bool _esUsuarioGoogle = false;
 
   @override
   void initState() {
     super.initState();
     _inicioSesionModelo = InicioSesionModelo();
+    _esUsuarioGoogle = _inicioSesionModelo.esUsuarioGoogle();
+
     _controllers = {
       'nombre': TextEditingController(text: widget.datosUsuario['nombre'] ?? ''),
       'apellidos':
           TextEditingController(text: widget.datosUsuario['apellidos'] ?? ''),
       'nombre_usuario': TextEditingController(
           text: widget.datosUsuario['nombre_usuario'] ?? ''),
-      'email': TextEditingController(text: Supabase.instance.client.auth.currentUser?.email ?? widget.datosUsuario['email'] ?? ''),
-      'contrasena': TextEditingController(), 
+      'email': TextEditingController(text: Supabase.instance.client.auth.currentUser?.email ?? widget.datosUsuario['email'] ?? widget.datosUsuario['correo_electronico'] ?? ''),
+      'contrasena': TextEditingController(),
     };
     _errores = {};
   }
 
   void _mostrarMensaje(BuildContext scaffoldContext, String mensaje, {bool esError = false}) {
     showCupertinoDialog(
-      context: scaffoldContext, 
-      builder: (BuildContext context) {
+      context: scaffoldContext,
+      builder: (BuildContext dialogContext) {
         return CupertinoAlertDialog(
           title: Text(esError ? 'Error' : 'Información'),
           content: Text(mensaje),
@@ -51,7 +56,7 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
             CupertinoDialogAction(
               child: const Text('Aceptar'),
               onPressed: () {
-                Navigator.of(context).pop(); 
+                Navigator.of(dialogContext).pop();
               },
             ),
           ],
@@ -76,196 +81,174 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
       final emailRegex = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
       if (!emailRegex.hasMatch(valor)) return 'Formato de correo inválido.';
     }
-    if (nombreCampo == 'contrasena') {
-        if (valor.isEmpty && !_inicioSesionModelo.esUsuarioGoogle()) return 'La contraseña no puede estar vacía.';
-        if (valor.isNotEmpty && valor.length < 6 && !_inicioSesionModelo.esUsuarioGoogle()) return 'La contraseña debe tener al menos 6 caracteres.';
+    if (nombreCampo == 'contrasena' && !_esUsuarioGoogle) {
+      if (valor.isEmpty) {
+        return 'La contraseña no puede estar vacía.';
+      }
+      if (valor.isNotEmpty && valor.length < 6) {
+        return 'La contraseña debe tener al menos 6 caracteres.';
+      }
     }
     return null;
   }
 
-  Widget _construirFormularioFila(
-    String etiqueta, // e.g., "Nombre"
-    String nombreCampo, // e.g., 'nombre'
-    TextEditingController valorController, // Controller for current value
-    BuildContext contextoDialogoSuperior, // Context from PerfilUsuario for dialogs
-    Future<void> Function(String columnaNombre, String nuevoValor) onCampoActualizado,
+  Widget _buildEditableField(
+    String etiqueta,
+    String nombreCampo,
+    TextEditingController valorController,
+    CambiarTema proveedorTema,
   ) {
-    final esModoOscuroLocal = CupertinoTheme.of(context).brightness == Brightness.dark;
+    final esModoOscuro = proveedorTema.modoOscuro;
+    final bool esCampoSensibleGoogle = (nombreCampo == 'email' || nombreCampo == 'contrasena') && _esUsuarioGoogle;
 
-    return CupertinoFormRow(
-      prefix: Padding(
-        padding: const EdgeInsets.only(right: 16.0), // Espacio entre etiqueta y valor
-        child: Text(
-          etiqueta,
-          style: TextStyle(
-            color: esModoOscuroLocal
-                ? CupertinoColors.systemGrey
-                : CupertinoColors.secondaryLabel.resolveFrom(context),
-          ),
-        ),
+    final Color colorFilaLista = esModoOscuro ? const Color(0xFF1E1E1E) : CupertinoColors.systemGrey6;
+    final Color colorTextoTitulo = esModoOscuro ? CupertinoColors.white : CupertinoColors.black;
+    final Color colorTextoValor = esModoOscuro ? CupertinoColors.lightBackgroundGray : CupertinoColors.black;
+
+    return CupertinoListTile(
+      backgroundColor: colorFilaLista,
+      title: Text(
+        etiqueta,
+        style: TextStyle(color: colorTextoTitulo),
       ),
-      child: GestureDetector(
-        onTap: () {
-          TextEditingController controladorDialog = TextEditingController(text: (nombreCampo == 'contrasena' ? '' : valorController.text));
-          if (_errores.containsKey(nombreCampo)) {
-            _errores.remove(nombreCampo);
-          }
+      additionalInfo: Text(
+        nombreCampo == 'contrasena'
+            ? (_esUsuarioGoogle ? "••••••••" : (valorController.text.isNotEmpty ? "••••••••" : "Establecer contraseña"))
+            : valorController.text,
+        style: TextStyle(color: colorTextoValor),
+      ),
+      trailing: null,
+      onTap: esCampoSensibleGoogle
+          ? () {
+              _mostrarMensaje(
+                widget.contexto,
+                "Los usuarios de Google no pueden modificar su ${nombreCampo == 'email' ? 'correo electrónico' : 'contraseña'} directamente desde aquí.",
+              );
+            }
+          : () {
+              TextEditingController controladorDialog = TextEditingController(text: (nombreCampo == 'contrasena' ? '' : valorController.text));
+              if (_errores.containsKey(nombreCampo)) {
+                setState(() { _errores.remove(nombreCampo); });
+              }
 
-          showCupertinoDialog(
-            context: contextoDialogoSuperior, // Usar el contexto pasado desde PerfilUsuario
-            builder: (BuildContext contextoDialogoInterno) {
-              return StatefulBuilder( // Para actualizar el mensaje de error dentro del diálogo
-                builder: (context, setStateDialog) {
-                  return CupertinoAlertDialog(
-                    title: Text('Editar $etiqueta'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CupertinoTextField(
-                          controller: controladorDialog,
-                          placeholder: (nombreCampo == 'contrasena' ? 'Nueva contraseña' : 'Nuevo $etiqueta'),
-                          autofocus: true,
-                          obscureText: nombreCampo == 'contrasena',
-                          onChanged: (value) {
-                            if (_errores[nombreCampo] != null) {
-                              setStateDialog(() { _errores.remove(nombreCampo); });
-                            }
-                          },
-                        ),
-                        if (_errores[nombreCampo] != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              _errores[nombreCampo]!,
-                              style: const TextStyle(color: CupertinoColors.destructiveRed, fontSize: 12),
+              showCupertinoDialog(
+                context: widget.contexto,
+                builder: (BuildContext contextoDialogoInterno) {
+                  return StatefulBuilder(
+                    builder: (context, setStateDialog) {
+                      return CupertinoAlertDialog(
+                        title: Text('Editar $etiqueta'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CupertinoTextField(
+                              controller: controladorDialog,
+                              placeholder: (nombreCampo == 'contrasena' ? 'Nueva contraseña' : 'Nuevo valor para $etiqueta'),
+                              autofocus: true,
+                              obscureText: nombreCampo == 'contrasena',
+                              onChanged: (value) {
+                                if (_errores[nombreCampo] != null) {
+                                  setStateDialog(() { _errores.remove(nombreCampo); });
+                                }
+                              },
                             ),
+                            if (_errores[nombreCampo] != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  _errores[nombreCampo]!,
+                                  style: const TextStyle(color: CupertinoColors.destructiveRed, fontSize: 12),
+                                ),
+                              ),
+                          ],
+                        ),
+                        actions: [
+                          CupertinoDialogAction(
+                            child: const Text("Cancelar"),
+                            onPressed: () => Navigator.pop(contextoDialogoInterno),
                           ),
-                      ],
-                    ),
-                    actions: [
-                      CupertinoDialogAction(
-                        child: const Text("Cancelar"),
-                        onPressed: () => Navigator.pop(contextoDialogoInterno),
-                      ),
-                      CupertinoDialogAction(
-                        child: const Text("Aceptar"),
-                        onPressed: () async {
-                          final nuevoValor = controladorDialog.text.trim();
-                          String? errorMsg;
-                          bool opSuccess = false;
+                          CupertinoDialogAction(
+                            child: const Text("Aceptar"),
+                            onPressed: () async {
+                              final nuevoValor = controladorDialog.text.trim();
+                              String? errorMsg;
+                              bool opSuccess = false;
 
-                          final validationError = await _validarCampo(nombreCampo, nuevoValor);
-                          if (validationError != null) {
-                            errorMsg = validationError;
-                          } else {
-                            try {
-                              if (nombreCampo == 'email') {
-                                await _inicioSesionModelo.cambiarEmail(nuevoValor);
-                                if (mounted) setState(() { valorController.text = nuevoValor; });
-                                opSuccess = true;
-                              } else if (nombreCampo == 'contrasena') {
-                                await _inicioSesionModelo.cambiarContrasena(nuevoValor);
-                                if (mounted) setState(() { valorController.clear(); }); // Clear password field
-                                opSuccess = true;
+                              final validationError = await _validarCampo(nombreCampo, nuevoValor);
+                              if (validationError != null) {
+                                errorMsg = validationError;
                               } else {
-                                await onCampoActualizado(nombreCampo, nuevoValor);
-                                if (mounted) setState(() { valorController.text = nuevoValor; });
-                                opSuccess = true;
+                                try {
+                                  if (nombreCampo == 'email') {
+                                    await _inicioSesionModelo.cambiarEmail(nuevoValor);
+                                    if (mounted) setState(() { valorController.text = nuevoValor; });
+                                    opSuccess = true;
+                                  } else if (nombreCampo == 'contrasena') {
+                                    await _inicioSesionModelo.cambiarContrasena(nuevoValor);
+                                    if (mounted) setState(() { valorController.clear(); });
+                                    opSuccess = true;
+                                  } else {
+                                    await widget.onCampoActualizado(nombreCampo, nuevoValor);
+                                    if (mounted) setState(() { valorController.text = nuevoValor; });
+                                    opSuccess = true;
+                                  }
+                                } catch (e) {
+                                  errorMsg = e.toString().replaceFirst("Exception: ", "");
+                                }
                               }
-                            } catch (e) {
-                              errorMsg = e.toString().replaceFirst("Exception: ", "");
-                            }
-                          }
 
-                          if (opSuccess) {
-                            Navigator.pop(contextoDialogoInterno); // Cierra el diálogo de edición
-                            if (nombreCampo == 'email') _mostrarMensaje(contextoDialogoSuperior, "Solicitud de cambio de correo procesada. Revisa tu bandeja de entrada.");
-                            else if (nombreCampo == 'contrasena') _mostrarMensaje(contextoDialogoSuperior, "Contraseña actualizada correctamente.");
-                            else _mostrarMensaje(contextoDialogoSuperior, "$etiqueta actualizado correctamente.");
-                          } else if (errorMsg != null) {
-                            setStateDialog(() { _errores[nombreCampo] = errorMsg; });
-                          }
-                        },
-                      ),
-                    ],
+                              if (opSuccess) {
+                                Navigator.pop(contextoDialogoInterno);
+                                String successMessage = "$etiqueta actualizado correctamente.";
+                                if (nombreCampo == 'email') {
+                                  successMessage = "Solicitud de cambio de correo procesada. Revisa tu bandeja de entrada.";
+                                } else if (nombreCampo == 'contrasena') {
+                                  successMessage = "Contraseña actualizada correctamente.";
+                                }
+                                _mostrarMensaje(widget.contexto, successMessage);
+                              } else if (errorMsg != null) {
+                                setStateDialog(() { _errores[nombreCampo] = errorMsg; });
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    },
                   );
                 },
               );
             },
-          );
-        },
-        child: Container( // Contenedor para el valor, para padding y alineación
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 12.0), // Ajusta según sea necesario
-          alignment: Alignment.centerRight, // Alinea el texto del valor a la derecha
-          child: Text(
-            nombreCampo == 'contrasena'
-                ? (valorController.text.isNotEmpty ? "••••••••" : "Establecer contraseña")
-                : valorController.text,
-            style: TextStyle(
-              color: esModoOscuroLocal
-                  ? CupertinoColors.white
-                  : CupertinoColors.black,
-            ),
-          ),
-        ),
-      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      child: CupertinoFormSection.insetGrouped(
-        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
-        header: Padding(
-          padding: const EdgeInsets.only(left: 16.0, bottom: 8.0, top: 20.0),
-          child: Text(
-            "Información del Perfil",
-            style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
+    final proveedorTema = Provider.of<CambiarTema>(context);
+    final esModoOscuro = proveedorTema.modoOscuro;
+
+    final Color colorFondoSeccion = esModoOscuro ? CupertinoColors.black : CupertinoColors.white;
+    final Color colorHeaderText = esModoOscuro ? CupertinoColors.white : CupertinoColors.black;
+
+    return CupertinoListSection.insetGrouped(
+      backgroundColor: colorFondoSeccion,
+      header: Padding(
+        padding: const EdgeInsets.only(left: 16.0, top: 20.0, bottom: 8.0),
+        child: Text(
+          "Información del Perfil",
+          style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: colorHeaderText,
           ),
         ),
-        children: [
-          _construirFormularioFila(
-              'Nombre',
-              'nombre',
-              _controllers['nombre']!,
-              widget.contexto, 
-              widget.onCampoActualizado,
-          ),
-          _construirFormularioFila(
-              'Apellidos',
-              'apellidos',
-              _controllers['apellidos']!,
-              widget.contexto,
-              widget.onCampoActualizado,
-          ),
-          _construirFormularioFila(
-              'Nombre de usuario',
-              'nombre_usuario',
-              _controllers['nombre_usuario']!,
-              widget.contexto,
-              widget.onCampoActualizado,
-          ),
-          _construirFormularioFila(
-              'Email',
-              'email',
-              _controllers['email']!,
-              widget.contexto,
-              (columna, nuevoValor) async { /* Email/Pass se manejan en dialog */ },
-          ),
-          _construirFormularioFila(
-              'Contraseña',
-              'contrasena',
-              _controllers['contrasena']!,
-              widget.contexto,
-              (columna, nuevoValor) async { /* Email/Pass se manejan en dialog */ },
-          ),
-        ],
       ),
+      children: <Widget>[
+        _buildEditableField('Nombre', 'nombre', _controllers['nombre']!, proveedorTema),
+        _buildEditableField('Apellidos', 'apellidos', _controllers['apellidos']!, proveedorTema),
+        _buildEditableField('Nombre de usuario', 'nombre_usuario', _controllers['nombre_usuario']!, proveedorTema),
+        _buildEditableField('Email', 'email', _controllers['email']!, proveedorTema),
+        _buildEditableField('Contraseña', 'contrasena', _controllers['contrasena']!, proveedorTema),
+      ],
     );
   }
 }

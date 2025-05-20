@@ -1,4 +1,3 @@
-// Importaciones necesarias
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tfg_ivandelllanoblanco/components/filtrar_movimientos.dart';
@@ -70,7 +69,7 @@ class AhorrosVistaState extends State<AhorrosVista> {
             CupertinoButton(
               // Botón para seleccionar fecha y filtrar movimientos
               onPressed: () async {
-                DateTime? fecha =
+                DateTime? fechaSeleccionada =
                     await SelectorFechaDialogo.mostrarDialogoFecha(
                   context,
                   controlador,
@@ -79,11 +78,23 @@ class AhorrosVistaState extends State<AhorrosVista> {
                   carga = true;
                 });
                 try {
-                  listaAhorros = await controlador.filtrarMovimientos((fecha != null) as DateTime);
+                  if (fechaSeleccionada != null) {
+                    listaAhorros = await controlador.filtrarMovimientos(fechaSeleccionada);
+                  } else {
+                    await _cargarAhorros();
+                  }
+                } catch (e) {
+                  print('Error al procesar filtro de fecha: $e');
+                  await _cargarAhorros(); 
                 } finally {
                   setState(() {
                     carga = false;
                   });
+                  if (mounted) {
+                     setState(() {
+                       carga = false;
+                     });
+                  }
                 }
                             },
               child: Icon(Icons.filter_alt),

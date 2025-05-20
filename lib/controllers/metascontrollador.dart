@@ -43,7 +43,7 @@ class MetasControlador {
     await modelo.agregarMeta(
         titulo, cantidadAhorrada, cantidadObjetivo, fechaLimite, usuarioId);
     onMetaAgregada();
-    return null; // Indica éxito
+    return null;
   }
 
   //Metodo para eliminar una meta
@@ -83,7 +83,7 @@ class MetasControlador {
     await modelo.actualizarMeta(
         id, titulo, cantidadAhorrada, cantidadObjetivo, fechaLimite, usuarioId);
     onMetaActualizada();
-    return null; // Indica éxito
+    return null;
   }
 
   //Metodo para abrir el navegador y mostrar la pagina de cursos

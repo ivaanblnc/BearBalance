@@ -31,7 +31,6 @@ class SelectorFechaDialogo {
             CupertinoDialogAction(
               child: const Text('Aceptar'),
               onPressed: () {
-                ahorro.filtrarMovimientos(fechaSeleccionada);
                 Navigator.of(context).pop(fechaSeleccionada);
               },
             ),

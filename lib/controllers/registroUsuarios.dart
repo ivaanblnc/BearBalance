@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tfg_ivandelllanoblanco/models/usuarios.dart';
+import 'package:tfg_ivandelllanoblanco/views/InicioDeSesion.dart';
 
 class RegistroControlador {
   final RegistroModelo modelo = RegistroModelo();
@@ -24,7 +25,14 @@ class RegistroControlador {
             actions: [
               CupertinoDialogAction(
                 child: const Text("Aceptar"),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    CupertinoPageRoute(builder: (context) => const InicioSesion()),
+                    (Route<dynamic> route) => false,
+                  );
+                },
               ),
             ],
           );

@@ -1,4 +1,3 @@
-// loginUsuario.dart (Modelo)
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -43,7 +42,6 @@ class InicioSesionModelo {
   //Metodo para insertar un nuevo usuario en la base de datos
   Future<void> insertarUsuario(Map<String, dynamic> datosUsuario) async {
     try {
-      // Eliminamos el campo 'contrasena' si existe
       final datosSinContrasena = Map<String, dynamic>.from(datosUsuario);
       datosSinContrasena.remove('contrasena');
 
@@ -125,8 +123,6 @@ class InicioSesionModelo {
       if (response.user == null) {
         throw Exception('No se pudo actualizar el correo electrónico. Vuelve a iniciar sesión e inténtalo de nuevo.');
       }
-      // Si el email requiere confirmación, el nuevo email no será inmediatamente visible en response.user.email
-      // Supabase puede enviar un correo de confirmación.
       print("Solicitud de cambio de correo electrónico procesada. Si es necesario, revisa tu bandeja de entrada para confirmar el cambio.");
     } catch (e) {
       throw Exception(e.toString());
