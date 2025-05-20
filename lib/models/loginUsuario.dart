@@ -5,6 +5,11 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 class InicioSesionModelo {
   final SupabaseClient _supabase = Supabase.instance.client;
 
+  bool esUsuarioGoogle() {
+    final user = _supabase.auth.currentUser;
+    return user?.appMetadata['provider'] == 'google';
+  }
+
   //Metodo para iniciar sesion con el OAUHT de email
   Future<AuthResponse> loginUser(
       String correoElectronico, String contrasena) async {
