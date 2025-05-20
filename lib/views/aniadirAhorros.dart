@@ -1,5 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // Primarily use Material Design components
 import 'package:intl/intl.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/ahorroscontrolador.dart';
 
@@ -12,136 +11,205 @@ class NuevoAhorroGastoVista extends StatefulWidget {
 
 class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
   final AhorrosControlador controlador = AhorrosControlador();
-  String _tipo = 'ingreso';
+  String _tipo = 'ingreso'; // 'ingreso' o 'gasto'
   double _cantidad = 0.0;
-  String? _categoria;
+  // String? _categoria; // Eliminado, se usa _categoriaController.text directamente
   DateTime _fechaRegistro = DateTime.now();
-  final _formKey = GlobalKey<FormState>();
-  String? _cantidadError;
+  final _formKey = GlobalKey<FormState>(); // Para validación con Material Form
+  String? _cantidadErrorText; // Para el error del TextField de cantidad
+  final TextEditingController _cantidadController = TextEditingController();
+  final TextEditingController _categoriaController = TextEditingController();
+
+  @override
+  void dispose() {
+    _cantidadController.dispose();
+    _categoriaController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        leading: CupertinoButton(
-            child: Icon(Icons.arrow_back_ios_new),
-            onPressed: () {
-              Navigator.pop(context);
-            }),
-        middle: const Text('Nuevo Ingreso/Gasto'),
+    final theme = Theme.of(context);
+
+    final InputDecoration modernInputDecoration = InputDecoration(
+      filled: true,
+      fillColor: theme.colorScheme.surfaceContainerHighest,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide.none,
       ),
-      child: SafeArea(
-        child: Padding(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+      labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8)),
+      errorStyle: TextStyle(color: theme.colorScheme.error),
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Nuevo Movimiento'),
+        elevation: 0.5, // Sutil elevación
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              CupertinoSlidingSegmentedControl(
-                children: const {
-                  'ingreso': Text('Ingreso'),
-                  'gasto': Text('Gasto'),
-                },
-                onValueChanged: (value) {
-                  setState(() {
-                    _tipo = value!;
-                  });
-                },
-                groupValue: _tipo,
-              ),
-              CupertinoTextField(
-                placeholder: 'Cantidad',
-                keyboardType: TextInputType.numberWithOptions(
-                    decimal: true, signed: true),
-                onChanged: (value) {
-                  setState(() {
-                    final parsed = double.tryParse(value);
-                    if (parsed == null) {
-                      _cantidadError = 'Introduce un número válido.';
-                      _cantidad = 0.0;
-                    } else if (parsed <= 0) {
-                      _cantidadError = 'La cantidad debe ser mayor que 0.';
-                      _cantidad = parsed;
-                    } else {
-                      _cantidad = parsed;
-                      _cantidadError = null;
-                    }
-                  });
-                },
-              ),
-              if (_cantidadError != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    _cantidadError!,
-                    style:
-                        const TextStyle(color: CupertinoColors.destructiveRed),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                SegmentedButton<String>(
+                  segments: const <ButtonSegment<String>>[
+                    ButtonSegment<String>(value: 'ingreso', label: Text('Ingreso'), icon: Icon(Icons.arrow_downward)),
+                    ButtonSegment<String>(value: 'gasto', label: Text('Gasto'), icon: Icon(Icons.arrow_upward)),
+                  ],
+                  selected: <String>{_tipo},
+                  onSelectionChanged: (Set<String> newSelection) {
+                    setState(() {
+                      _tipo = newSelection.first;
+                      // Limpiar categoría si se cambia a ingreso
+                      if (_tipo == 'ingreso') {
+                        // _categoria = null; // _categoria ya no existe
+                        _categoriaController.clear(); // Esto es correcto
+                      }
+                    });
+                  },
+                  style: SegmentedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.surfaceContainer,
+                    selectedForegroundColor: theme.colorScheme.onPrimary,
+                    selectedBackgroundColor: theme.colorScheme.primary,
+                    // visualDensity: VisualDensity.compact, // Para hacerlo un poco más pequeño
                   ),
                 ),
-              if (_tipo == 'gasto')
-                CupertinoTextField(
-                  placeholder: 'Categoría (opcional)',
-                  onChanged: (value) => _categoria = value,
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _cantidadController,
+                  decoration: modernInputDecoration.copyWith(
+                    labelText: 'Cantidad',
+                    errorText: _cantidadErrorText,
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: false),
+                  onChanged: (value) {
+                    setState(() {
+                      final parsed = double.tryParse(value);
+                      if (parsed == null || parsed <= 0) {
+                        // El error se mostrará por el validador o por _cantidadErrorText
+                      } else {
+                        _cantidad = parsed;
+                        _cantidadErrorText = null; // Limpiar error si es válido
+                      }
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      _cantidadErrorText = 'Introduce una cantidad.';
+                      return _cantidadErrorText;
+                    }
+                    final parsed = double.tryParse(value);
+                    if (parsed == null) {
+                      _cantidadErrorText = 'Introduce un número válido.';
+                      return _cantidadErrorText;
+                    }
+                    if (parsed <= 0) {
+                      _cantidadErrorText = 'La cantidad debe ser mayor que 0.';
+                      return _cantidadErrorText;
+                    }
+                    _cantidad = parsed; // Actualizar _cantidad aquí también
+                    _cantidadErrorText = null;
+                    return null;
+                  },
                 ),
-              CupertinoButton(
-                child: Text(
-                    'Fecha: ${DateFormat('dd/MM/yyyy').format(_fechaRegistro)}'),
-                onPressed: () {
-                  showCupertinoModalPopup(
-                    context: context,
-                    builder: (BuildContext builder) {
-                      final brightness = CupertinoTheme.of(context).brightness;
-
-                      return CupertinoTheme(
-                        data: CupertinoThemeData(
-                          brightness: brightness,
-                        ),
-                        child: Container(
-                          height: MediaQuery.of(context).size.height * 0.25,
-                          color: CupertinoColors.systemBackground
-                              .resolveFrom(context),
-                          child: CupertinoDatePicker(
-                            mode: CupertinoDatePickerMode.date,
-                            initialDateTime: _fechaRegistro,
-                            onDateTimeChanged: (DateTime newDate) {
-                              setState(() {
-                                _fechaRegistro = newDate;
-                              });
-                            },
+                const SizedBox(height: 16),
+                if (_tipo == 'gasto')
+                  TextFormField(
+                    controller: _categoriaController,
+                    decoration: modernInputDecoration.copyWith(labelText: 'Descripción (opcional)'),
+                    // onChanged: (value) => _categoria = value, // Eliminado, el valor se toma del controller
+                  ),
+                if (_tipo == 'gasto') const SizedBox(height: 16),
+                TextButton.icon(
+                  icon: Icon(Icons.calendar_today, color: theme.colorScheme.primary),
+                  label: Text(
+                    'Fecha: ${DateFormat('dd/MM/yyyy').format(_fechaRegistro.toLocal())}',
+                    style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.w500),
+                  ),
+                  onPressed: () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: _fechaRegistro,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2101),
+                      helpText: 'SELECCIONAR FECHA',
+                      cancelText: 'CANCELAR',
+                      confirmText: 'ACEPTAR',
+                      builder: (context, child) {
+                        return Theme(
+                          data: theme.copyWith(
+                            colorScheme: theme.colorScheme.copyWith(
+                              primary: theme.colorScheme.primary,
+                              onPrimary: theme.colorScheme.onPrimary,
+                            ),
+                            textButtonTheme: TextButtonThemeData(
+                              style: TextButton.styleFrom(
+                                foregroundColor: theme.colorScheme.primary,
+                              ),
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-              CupertinoButton(
-                child: const Text('Guardar'),
-                onPressed: () async {
-                  if (_validarCantidad()) {
-                    final ahorro = {
-                      'tipo': _tipo,
-                      'cantidad': _cantidad,
-                      'categoria': _categoria,
-                      'fecha_registro': _fechaRegistro.toIso8601String(),
-                    };
-                    await controlador.agregarAhorro(ahorro);
-                    Navigator.pop(context, true);
-                  }
-                },
-              ),
-            ],
+                          child: child!,
+                        );
+                      },
+                    );
+                    if (picked != null && picked != _fechaRegistro) {
+                      setState(() {
+                        _fechaRegistro = picked;
+                      });
+                    }
+                  },
+                  style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12.0)),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    textStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  child: const Text('Guardar'),
+                  onPressed: () async {
+                    // Actualizar _cantidad una última vez antes de validar
+                    final currentCantidadText = _cantidadController.text;
+                    final parsedCantidad = double.tryParse(currentCantidadText);
+                    if (parsedCantidad != null) {
+                      _cantidad = parsedCantidad;
+                    } else {
+                      _cantidad = 0; // o manejar el error de parseo
+                    }
+
+                    if (_formKey.currentState!.validate()) {
+                      final String? categoriaParaGuardar = _tipo == 'ingreso' ? null : _categoriaController.text.trim();
+                      final ahorro = {
+                        'tipo': _tipo,
+                        'cantidad': _cantidad,
+                        'categoria': categoriaParaGuardar,
+                        'fecha_registro': _fechaRegistro.toIso8601String(),
+                      };
+                      try {
+                        await controlador.agregarAhorro(ahorro);
+                        if (mounted) Navigator.pop(context, true); // Indicar que se guardó algo
+                      } catch (e) {
+                        if (mounted) {
+                           ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error al guardar: ${e.toString()}'))
+                          );
+                        }
+                        print('Error al guardar: $e');
+                      }
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
-
-  bool _validarCantidad() {
-    if (_cantidad <= 0) {
-      setState(() {
-        _cantidadError = 'Por favor, ingresa una cantidad mayor que 0.';
-      });
-      return false;
-    }
-    return true;
-  }
+  // _validarCantidad ya no es necesario, se usa _formKey.currentState!.validate()
 }

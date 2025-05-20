@@ -1,8 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:tfg_ivandelllanoblanco/controllers/cambiarTema.dart';
 
 // Pantalla que muestra los detalles de un ahorro o gasto específico
 class DetalleAhorroVista extends StatelessWidget {
@@ -13,74 +10,87 @@ class DetalleAhorroVista extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Proveedor que maneja el estado del tema
-    final proveedorTema = Provider.of<CambiarTema>(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
-    // Determinamos si estamos en modo oscuro o claro
-    final esModoOscuro = proveedorTema.modoOscuro;
-
-    // Colores de fondo y texto según el tema de la interfaz
-    final colorFondo =
-        esModoOscuro ? CupertinoColors.black : CupertinoColors.white;
-    final colorTextoPrincipal =
-        esModoOscuro ? CupertinoColors.white : CupertinoColors.black;
-
-    // Formato para las fechas y la cantidad de dinero
-    final formatoFecha = DateFormat('dd/MM/yyyy HH:mm');
+    final formatoFecha = DateFormat('dd/MM/yyyy HH:mm', 'es_ES');
     final formatoMoneda = NumberFormat.currency(locale: 'es_ES', symbol: '€');
 
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('Detalles del Movimiento',
-            style: TextStyle(color: CupertinoColors.activeBlue)),
-        backgroundColor: colorFondo,
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child:
-              Icon(Icons.arrow_back_ios_new, color: CupertinoColors.activeBlue),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text('Tipo:',
-                  style: TextStyle(fontSize: 18, color: colorTextoPrincipal)),
-              Text(ahorro['tipo'] == 'ingreso' ? 'Ingreso' : 'Gasto',
-                  style: TextStyle(fontSize: 16, color: colorTextoPrincipal)),
-              const SizedBox(height: 15),
-              Text('Fecha:',
-                  style: TextStyle(fontSize: 18, color: colorTextoPrincipal)),
-              Text(
-                  formatoFecha.format(
-                      DateTime.parse(ahorro['fecha_registro']).toLocal()),
-                  style: TextStyle(fontSize: 16, color: colorTextoPrincipal)),
-              const SizedBox(height: 15),
-              Text('Cantidad:',
-                  style: TextStyle(fontSize: 18, color: colorTextoPrincipal)),
-              Text(formatoMoneda.format((ahorro['cantidad'] as num).toDouble()),
-                  style: TextStyle(fontSize: 16, color: colorTextoPrincipal)),
-              if (ahorro['tipo'] == 'gasto' &&
-                  ahorro['categoria'] != null &&
-                  ahorro['categoria'].isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Categoría:',
-                          style: TextStyle(
-                              fontSize: 18, color: colorTextoPrincipal)),
-                      Text(ahorro['categoria'],
-                          style: TextStyle(
-                              fontSize: 16, color: colorTextoPrincipal)),
-                    ],
-                  ),
+    // Colores para ingreso/gasto (consistente con el gráfico)
+    final positiveColor = Color(0xFF66BB6A);
+    final negativeColor = Color(0xFFEF5350);
+
+    Widget _buildDetailRow(String label, String value, {Color? valueColor, FontWeight? valueWeight}) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10.0), // Aumentado el padding vertical
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start, // Alinear labels y values al inicio
+          children: [
+            Text(label, style: textTheme.titleSmall?.copyWith(color: colorScheme.onSurfaceVariant)),
+            Expanded(
+              child: Text(
+                value,
+                textAlign: TextAlign.end,
+                style: textTheme.bodyLarge?.copyWith(
+                  color: valueColor ?? colorScheme.onSurface,
+                  fontWeight: valueWeight ?? FontWeight.normal,
                 ),
-            ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Detalles del Movimiento'),
+        elevation: 0, // Diseño más plano
+        backgroundColor: theme.scaffoldBackgroundColor, // Fondo igual que el scaffold
+        foregroundColor: colorScheme.onSurface, // Color para título e iconos
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Card(
+          elevation: 0.5, // Elevación sutil para el card
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+          color: colorScheme.surfaceContainerLowest, // Color de fondo del Card
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                _buildDetailRow(
+                  'Tipo:',
+                  ahorro['tipo'] == 'ingreso' ? 'Ingreso' : 'Gasto',
+                  valueColor: ahorro['tipo'] == 'ingreso' ? positiveColor : negativeColor,
+                  valueWeight: FontWeight.bold,
+                ),
+                Divider(color: colorScheme.outlineVariant.withOpacity(0.5)),
+                _buildDetailRow(
+                  'Fecha:',
+                  formatoFecha.format(DateTime.parse(ahorro['fecha_registro']).toLocal()),
+                ),
+                Divider(color: colorScheme.outlineVariant.withOpacity(0.5)),
+                _buildDetailRow(
+                  'Cantidad:',
+                  formatoMoneda.format((ahorro['cantidad'] as num).toDouble()),
+                  valueColor: ahorro['tipo'] == 'ingreso' ? positiveColor : negativeColor,
+                  valueWeight: FontWeight.bold,
+                ),
+                if (ahorro['tipo'] == 'gasto' &&
+                    ahorro['categoria'] != null &&
+                    ahorro['categoria'].isNotEmpty) ...[
+                  Divider(color: colorScheme.outlineVariant.withOpacity(0.5)),
+                  _buildDetailRow(
+                    'Categoría:',
+                    ahorro['categoria'],
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ),

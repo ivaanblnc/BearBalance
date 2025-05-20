@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tfg_ivandelllanoblanco/components/perfil_cerrarsesion.dart';
 import 'package:tfg_ivandelllanoblanco/components/perfil_detalles.dart';
@@ -61,28 +60,34 @@ class _PerfilVistaState extends State<PerfilVista> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: const Text(
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
           "Mi Perfil",
-          style: TextStyle(color: CupertinoColors.activeBlue),
+          style: TextStyle(color: colorScheme.onSurface), // Or let it default
         ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () {
-            Navigator.of(context).push(
-              CupertinoPageRoute(
-                builder: (context) => const ConfiguracionPantalla(),
-              ),
-            );
-          },
-          child: const Icon(Icons.settings, color: CupertinoColors.activeBlue),
-        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings, color: colorScheme.primary), // Or let it default
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const ConfiguracionPantalla(),
+                ),
+              );
+            },
+          ),
+        ],
+        backgroundColor: theme.scaffoldBackgroundColor,
+        elevation: 0,
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: datosUsuario == null
             // Mostramos un indicador de carga si los datos del usuario aún no se han cargado
-            ? const Center(child: CupertinoActivityIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 child: Column(
                   children: [

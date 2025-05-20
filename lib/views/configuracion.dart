@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/cambiarTema.dart';
@@ -12,24 +11,15 @@ class ConfiguracionPantalla extends StatelessWidget {
     // Obtenemos el proveedor del tema para acceder al estado actual
     final themeProvider = Provider.of<CambiarTema>(context);
 
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        // Botón de retroceso para salir de la pantalla de configuración
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(
-            Icons.arrow_back_ios_rounded,
-            size: 24.0,
-            color: Colors.indigoAccent,
-          ),
-          onPressed: () {
-            // Navegamos hacia atrás
-            Navigator.pop(context);
-          },
-        ),
-        middle: Text('Configuración'),
+    return Scaffold(
+      appBar: AppBar(
+        // AppBar will automatically add a back button if appropriate.
+        // If explicit control is needed, use: leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
+        title: Text('Configuración'),
+        elevation: 0, // Optional: for a flatter look like CupertinoNavigationBar
+        // backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Optional: to match scaffold
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -40,12 +30,13 @@ class ConfiguracionPantalla extends StatelessWidget {
                   Text('Modo Oscuro', style: TextStyle(fontSize: 17)),
 
                   // Interruptor para activar o desactivar el modo oscuro
-                  CupertinoSwitch(
+                  Switch(
                     value: themeProvider.modoOscuro,
                     onChanged: (value) {
                       // Cambiamos el valor del modo oscuro cuando el usuario interactúa
                       themeProvider.switchModoOscuro(value);
                     },
+                    activeColor: Theme.of(context).colorScheme.primary, // Optional: to style the switch
                   ),
                 ],
               ),

@@ -1,9 +1,7 @@
-import 'package:flutter/cupertino.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../entidades/Ahorros.dart';
-// import 'package:tfg_ivandelllanoblanco/models/themeProvider.dart';
-// import 'package:provider/provider.dart';
 
 class GraficoAhorros extends StatelessWidget {
   final List<Ahorros> ahorrosList;
@@ -12,57 +10,313 @@ class GraficoAhorros extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SfCartesianChart(
-      backgroundColor: CupertinoColors.systemBackground.resolveFrom(context),
-      primaryXAxis: DateTimeAxis(
-        intervalType: DateTimeIntervalType.months,
-        dateFormat: DateFormat.MMM(),
-        labelStyle:
-            TextStyle(color: CupertinoColors.label.resolveFrom(context)),
-        minimum: DateTime(DateTime.now().year, 1),
-        maximum: DateTime(DateTime.now().year, 12),
+    final bool esModoOscuro = Theme.of(context).brightness == Brightness.dark;
+    final Color colorTexto = esModoOscuro ? Colors.white70 : Colors.black54;
+    final Color colorFondo = esModoOscuro ? Colors.grey[900]! : Colors.grey[50]!;
+    final Color colorIngresos = Colors.cyanAccent;
+    final Color colorGastos = Colors.orangeAccent;
+    final Color colorSaldo = Colors.purpleAccent;
+
+    // Procesar datos por trimestre
+    final quarterData = <DateTime, Map<String, double>>{};
+    final spotsIngresos = <FlSpot>[];
+    final spotsGastos = <FlSpot>[];
+    final spotsSaldo = <FlSpot>[];
+    double maxY = 0;
+
+    for (final ahorro in ahorrosList) {
+      final quarterStart = DateTime(ahorro.fecha.year, (ahorro.fecha.month - 1) ~/ 3 * 3 + 1, 1);
+      final quarterKey = DateTime(quarterStart.year, quarterStart.month);
+      
+      quarterData.update(quarterKey, (value) {
+        return {
+          'ingresos': value['ingresos']! + ahorro.ingresos,
+          'gastos': value['gastos']! + ahorro.gastos,
+        };
+      }, ifAbsent: () => {
+        'ingresos': ahorro.ingresos,
+        'gastos': ahorro.gastos,
+      });
+    }
+
+    // Convertir a spots
+    quarterData.forEach((quarter, values) {
+      final ingresos = values['ingresos']!;
+      final gastos = values['gastos']!;
+      final saldo = ingresos - gastos;
+      final x = quarter.millisecondsSinceEpoch.toDouble();
+      
+      spotsIngresos.add(FlSpot(x, ingresos));
+      spotsGastos.add(FlSpot(x, gastos));
+      spotsSaldo.add(FlSpot(x, saldo));
+      
+      maxY = [maxY, ingresos, gastos, saldo.abs()].reduce((a, b) => a > b ? a : b);
+    });
+
+    // Calcular totales
+    final totalIngresos = spotsIngresos.fold(0.0, (sum, spot) => sum + spot.y);
+    final totalGastos = spotsGastos.fold(0.0, (sum, spot) => sum + spot.y);
+    final saldoTotal = totalIngresos - totalGastos;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: colorFondo,
       ),
-      primaryYAxis: NumericAxis(
-        title: AxisTitle(
-          text: " Cantidad (€)",
-          textStyle:
-              TextStyle(color: CupertinoColors.label.resolveFrom(context)),
-        ),
-        labelStyle:
-            TextStyle(color: CupertinoColors.label.resolveFrom(context)),
+      child: Column(
+        children: [
+          // Encabezado
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Rendimiento Financiero',
+                    style: TextStyle(
+                      color: colorTexto,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'Resumen por Trimestre',
+                    style: TextStyle(
+                      color: colorTexto.withOpacity(0.7),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: esModoOscuro ? Colors.grey[800] : Colors.grey[200],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${saldoTotal >= 0 ? '+' : ''}${NumberFormat.currency(locale: 'es', symbol: '€').format(saldoTotal)}',
+                  style: TextStyle(
+                    color: saldoTotal >= 0 ? colorIngresos : colorGastos,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          
+          // Gráfico
+          Expanded(
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: maxY / 4,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: esModoOscuro ? Colors.white12 : Colors.black12,
+                    strokeWidth: 0.5,
+                    dashArray: [4],
+                  ),
+                ),
+                titlesData: FlTitlesData(
+                  show: true,
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 22,
+                      interval: _calcularIntervaloTrimestral(quarterData.keys.toList()),
+                      getTitlesWidget: (value, meta) {
+                        final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                        return Text(
+                          'Q${(date.month - 1) ~/ 3 + 1}\n${date.year}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: colorTexto,
+                            fontSize: 10,
+                            height: 1.2,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      interval: maxY / 3,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          _formatearValor(value),
+                          style: TextStyle(
+                            color: colorTexto,
+                            fontSize: 10,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                minX: quarterData.keys.first.millisecondsSinceEpoch.toDouble(),
+                maxX: quarterData.keys.last.millisecondsSinceEpoch.toDouble(),
+                minY: 0,
+                maxY: maxY * 1.2,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: spotsIngresos,
+                    isCurved: true,
+                    curveSmoothness: 0.35,
+                    color: colorIngresos,
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        colors: [colorIngresos.withOpacity(0.15), Colors.transparent],
+                        stops: [0.1, 1.0],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                  LineChartBarData(
+                    spots: spotsGastos,
+                    isCurved: true,
+                    curveSmoothness: 0.35,
+                    color: colorGastos,
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        colors: [colorGastos.withOpacity(0.15), Colors.transparent],
+                        stops: [0.1, 1.0],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                  LineChartBarData(
+                    spots: spotsSaldo,
+                    isCurved: true,
+                    curveSmoothness: 0.35,
+                    color: colorSaldo,
+                    barWidth: 4,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: true),
+                    dashArray: [5, 5],
+                  ),
+                ],
+                lineTouchData: LineTouchData(
+                  enabled: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (_) => esModoOscuro 
+                        ? Colors.grey[800]!.withOpacity(0.95)
+                        : Colors.white.withOpacity(0.95),
+                    tooltipRoundedRadius: 8,
+                    getTooltipItems: (touchedSpots) {
+                      return touchedSpots.map((barSpot) {
+                        final date = DateTime.fromMillisecondsSinceEpoch(barSpot.x.toInt());
+                        final tipo = ['Ingresos', 'Gastos', 'Saldo'][barSpot.barIndex];
+                        final color = [colorIngresos, colorGastos, colorSaldo][barSpot.barIndex];
+                        
+                        return LineTooltipItem(
+                          tipo,
+                          TextStyle(
+                            color: color,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: '\n${NumberFormat.currency(locale: 'es', symbol: '€').format(barSpot.y)}',
+                              style: TextStyle(
+                                color: esModoOscuro ? Colors.white : Colors.black87,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '\nQ${(date.month - 1) ~/ 3 + 1} ${date.year}',
+                              style: TextStyle(
+                                color: esModoOscuro ? Colors.white60 : Colors.black54,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Leyenda
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _LeyendaItem(color: colorIngresos, texto: 'Ingresos'),
+              const SizedBox(width: 16),
+              _LeyendaItem(color: colorGastos, texto: 'Gastos'),
+              const SizedBox(width: 16),
+              _LeyendaItem(color: colorSaldo, texto: 'Saldo'),
+            ],
+          ),
+        ],
       ),
-      tooltipBehavior: TooltipBehavior(enable: true),
-      series: <CartesianSeries<Ahorros, DateTime>>[
-        SplineAreaSeries<Ahorros, DateTime>(
-          name: "Saldo",
-          dataSource: ahorrosList,
-          xValueMapper: (Ahorros ahorro, _) => ahorro.fecha,
-          yValueMapper: (Ahorros ahorro, _) => ahorro.saldo,
-          gradient: LinearGradient(colors: [
-            CupertinoColors.systemBlue.withOpacity(0.6),
-            CupertinoColors.systemBlue.withOpacity(0.1)
-          ], begin: Alignment.topCenter, end: Alignment.bottomCenter),
-          borderColor: CupertinoColors.systemBlue,
-          borderWidth: 2,
-          markerSettings: const MarkerSettings(isVisible: true),
+    );
+  }
+
+  double _calcularIntervaloTrimestral(List<DateTime> quarters) {
+    if (quarters.length <= 1) return 1;
+    return (quarters.last.millisecondsSinceEpoch - 
+           quarters.first.millisecondsSinceEpoch) / 
+           (quarters.length - 1);
+  }
+
+  String _formatearValor(double value) {
+    if (value >= 1000000) return '${(value/1000000).toStringAsFixed(1)}M';
+    if (value >= 1000) return '${(value/1000).toStringAsFixed(1)}K';
+    return value.toInt().toString();
+  }
+}
+
+class _LeyendaItem extends StatelessWidget {
+  final Color color;
+  final String texto;
+
+  const _LeyendaItem({required this.color, required this.texto});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color,
+          ),
         ),
-        SplineSeries<Ahorros, DateTime>(
-          name: "Ingresos",
-          dataSource: ahorrosList,
-          xValueMapper: (Ahorros ahorro, _) => ahorro.fecha,
-          yValueMapper: (Ahorros ahorro, _) => ahorro.ingresos,
-          color: CupertinoColors.systemGreen,
-          width: 2,
-          markerSettings: const MarkerSettings(isVisible: true),
-        ),
-        SplineSeries<Ahorros, DateTime>(
-          name: "Gastos",
-          dataSource: ahorrosList,
-          xValueMapper: (Ahorros ahorro, _) => ahorro.fecha,
-          yValueMapper: (Ahorros ahorro, _) => ahorro.gastos,
-          color: CupertinoColors.systemRed,
-          width: 2,
-          markerSettings: const MarkerSettings(isVisible: true),
+        const SizedBox(width: 4),
+        Text(
+          texto,
+          style: TextStyle(
+            fontSize: 12,
+            color: Theme.of(context).textTheme.bodyLarge?.color,
+          ),
         ),
       ],
     );

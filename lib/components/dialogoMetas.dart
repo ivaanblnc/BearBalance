@@ -1,7 +1,8 @@
-import 'package:flutter/cupertino.dart';
-import 'package:tfg_ivandelllanoblanco/controllers/cambiarTema.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart'; // For CupertinoColors
+import 'package:intl/intl.dart'; // For date formatting
 import 'package:tfg_ivandelllanoblanco/controllers/metascontrollador.dart';
-import 'package:provider/provider.dart';
+
 
 class DialogoMetas extends StatefulWidget {
   final MetasControlador controlador;
@@ -56,33 +57,23 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
     }
   }
 
-  void _mostrarSelectorFecha(BuildContext context) {
-    showCupertinoModalPopup(
+  Future<void> _mostrarSelectorFecha(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
       context: context,
-      builder: (BuildContext builder) {
-        final esOscuro = Provider.of<CambiarTema>(context).modoOscuro;
-        return Container(
-          height: MediaQuery.of(context).copyWith().size.height * 0.25,
-          color: CupertinoTheme.of(context).scaffoldBackgroundColor,
-          child: CupertinoTheme(
-            data: CupertinoThemeData(
-              brightness: esOscuro ? Brightness.dark : Brightness.light,
-            ),
-            child: CupertinoDatePicker(
-              mode: CupertinoDatePickerMode.date,
-              initialDateTime: _fechaLimite,
-              onDateTimeChanged: (DateTime newDate) {
-                setState(() {
-                  _fechaLimite = newDate;
-                  _fechaLimiteController.text =
-                      "${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')}";
-                });
-              },
-            ),
-          ),
-        );
-      },
+      initialDate: _fechaLimite,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+      // helpText: 'Seleccionar Fecha Límite',
+      // cancelText: 'Cancelar',
+      // confirmText: 'Aceptar',
     );
+    if (picked != null && picked != _fechaLimite) {
+      setState(() {
+        _fechaLimite = picked;
+        _fechaLimiteController.text =
+            DateFormat('yyyy-MM-dd').format(picked); // Using intl for formatting
+      });
+    }
   }
 
   void _validarCampos() {
@@ -96,15 +87,15 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
     });
   }
 
-  String? _validarTitulo(String value) {
-    if (value.trim().isEmpty) {
+  String? _validarTitulo(String? value) {
+    if (value == null || value.trim().isEmpty) {
       return "El nombre de la meta no puede estar vacío.";
     }
     return null;
   }
 
-  String? _validarCantidad(String value) {
-    if (value.trim().isEmpty) {
+  String? _validarCantidad(String? value) {
+    if (value == null || value.trim().isEmpty) {
       return "Este campo no puede estar vacío.";
     }
     final cantidad = double.tryParse(value);
@@ -114,17 +105,14 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
     return null;
   }
 
-  String? _validarFecha(String value) {
-    if (value.trim().isEmpty) {
-      return "La fecha límite no puede estar vacía.";
+  String? _validarFecha(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "La fecha no puede estar vacía.";
     }
     try {
-      final fechaLimiteDate = DateTime.parse(value);
-      if (fechaLimiteDate.isBefore(DateTime.now())) {
-        return "La fecha límite no puede ser anterior al día de hoy.";
-      }
+      DateFormat('yyyy-MM-dd').parseStrict(value);
     } catch (e) {
-      return "Formato de fecha inválido (AAAA-MM-DD).";
+      return 'Formato de fecha inválido (YYYY-MM-DD).';
     }
     return null;
   }
@@ -173,85 +161,91 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoAlertDialog(
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    // Define InputDecoration centrally for consistency
+    InputDecoration _inputDecoration(String label, String? errorText) {
+      return InputDecoration(
+        labelText: label,
+        errorText: errorText,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2.0),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide(color: colorScheme.error, width: 1.0),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide(color: colorScheme.error, width: 2.0),
+        ),
+        filled: true,
+        fillColor: colorScheme.surfaceContainerHighest,
+      );
+    }
+
+    return AlertDialog(
       title: Text(widget.meta == null ? 'Crear Nueva Meta' : 'Modificar Meta'),
       content: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CupertinoTextField(
-              controller: _tituloController,
-              placeholder: 'Nombre de la meta',
-              onChanged: (value) => setState(() => _tituloError = null),
-            ),
-            if (_tituloError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 5.0),
-                child: Text(_tituloError!,
-                    style:
-                        const TextStyle(color: CupertinoColors.destructiveRed)),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: _tituloController,
+                decoration: _inputDecoration('Nombre de la meta', _tituloError),
+                validator: _validarTitulo,
+                onChanged: (value) => setState(() => _tituloError = null), // Keep for immediate error clear
               ),
-            const SizedBox(height: 10),
-            CupertinoTextField(
-              controller: _cantidadAhorradaController,
-              placeholder: 'Cantidad ahorrada',
-              keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true, signed: false),
-              onChanged: (value) =>
-                  setState(() => _cantidadAhorradaError = null),
-            ),
-            if (_cantidadAhorradaError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 5.0),
-                child: Text(_cantidadAhorradaError!,
-                    style:
-                        const TextStyle(color: CupertinoColors.destructiveRed)),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _cantidadAhorradaController,
+                decoration: _inputDecoration('Cantidad ahorrada (€)', _cantidadAhorradaError),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: _validarCantidad,
+                onChanged: (value) => setState(() => _cantidadAhorradaError = null),
               ),
-            const SizedBox(height: 10),
-            CupertinoTextField(
-              controller: _cantidadObjetivoController,
-              placeholder: 'Cantidad objetivo',
-              keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true, signed: false),
-              onChanged: (value) =>
-                  setState(() => _cantidadObjetivoError = null),
-            ),
-            if (_cantidadObjetivoError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 5.0),
-                child: Text(_cantidadObjetivoError!,
-                    style:
-                        const TextStyle(color: CupertinoColors.destructiveRed)),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _cantidadObjetivoController,
+                decoration: _inputDecoration('Cantidad objetivo (€)', _cantidadObjetivoError),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: _validarCantidad, // Assuming same validation as 'ahorrada'
+                onChanged: (value) => setState(() => _cantidadObjetivoError = null),
               ),
-            const SizedBox(height: 10),
-            CupertinoButton(
-              child: Text(
-                _fechaLimiteController.text.isEmpty
-                    ? 'Seleccionar Fecha Límite'
-                    : 'Fecha Límite: ${_fechaLimiteController.text}',
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _fechaLimiteController,
+                decoration: _inputDecoration('Fecha Límite (YYYY-MM-DD)', _fechaLimiteError),
+                readOnly: true,
+                onTap: () => _mostrarSelectorFecha(context),
+                validator: _validarFecha,
               ),
-              onPressed: () => _mostrarSelectorFecha(context),
-            ),
-            if (_fechaLimiteError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 5.0),
-                child: Text(_fechaLimiteError!,
-                    style:
-                        const TextStyle(color: CupertinoColors.destructiveRed)),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
       actions: [
-        CupertinoDialogAction(
+        TextButton(
           child: const Text('Cancelar'),
           onPressed: () => Navigator.pop(context),
         ),
-        CupertinoDialogAction(
+        ElevatedButton(
           onPressed: _guardarMeta,
           child: const Text('Guardar'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: CupertinoColors.activeBlue,
+            foregroundColor: CupertinoColors.white,
+          ),
         ),
       ],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+      backgroundColor: colorScheme.surfaceContainerLowest,
     );
   }
 }

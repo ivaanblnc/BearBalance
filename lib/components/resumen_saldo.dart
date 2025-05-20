@@ -14,45 +14,55 @@ class SaldoResumen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const SizedBox(width: 20),
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSaldoText(
-                    "Saldo total: ${saldoActual.toStringAsFixed(2)} €",
-                    Colors.indigoAccent),
-                _buildSaldoText(
-                    "Ingresos: ${totalIngresos.toStringAsFixed(2)} €",
-                    Colors.green),
-                _buildSaldoText(
-                    "Gastos: ${totalGastos.toStringAsFixed(2)} €", Colors.red),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-        ],
-      ),
-    );
-  }
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
-  Widget _buildSaldoText(String text, Color color) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: color,
+    return Card(
+      elevation: 0,
+      // shape: RoundedRectangleBorder(
+      //   borderRadius: BorderRadius.circular(12.0),
+      //   side: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
+      // ),
+      margin: EdgeInsets.zero, // Para que el Card se ajuste al espacio del Expanded en AhorrosVista
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center, // Centrar verticalmente si es posible
+          children: [
+            Text(
+              "Saldo total:",
+              style: textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+            Text(
+              "${saldoActual.toStringAsFixed(2)} €",
+              style: textTheme.headlineSmall?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Ingresos:",
+              style: textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+            Text(
+              "${totalIngresos.toStringAsFixed(2)} €",
+              style: textTheme.titleMedium?.copyWith(color: Colors.green[700]),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "Gastos:",
+              style: textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+            Text(
+              "${totalGastos.toStringAsFixed(2)} €",
+              style: textTheme.titleMedium?.copyWith(color: Colors.red[700]),
+            ),
+          ],
         ),
       ),
     );
   }
+  // _buildSaldoText ya no es necesario, se integra la lógica en build.
 }

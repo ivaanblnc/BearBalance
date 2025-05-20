@@ -1,31 +1,32 @@
-import 'package:flutter/cupertino.dart';
-import '../views/metas.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart'; // For CupertinoColors
 import '../controllers/metascontrollador.dart';
 
 class EliminarMetaDialog {
   static void eliminarItemMeta(
     BuildContext context,
     int id,
-    MetasViewState vistaMetas,
     MetasControlador controlador,
     VoidCallback cargarMetas,
   ) {
-    showCupertinoDialog(
+    showDialog(
       context: context,
-      builder: (BuildContext context) => CupertinoAlertDialog(
+      builder: (BuildContext context) => AlertDialog(
         title: const Text("Eliminar Meta"),
         content: const Text("¿Seguro que quieres eliminar esta meta?"),
         actions: [
-          CupertinoDialogAction(
+          TextButton(
             onPressed: () {
               controlador.eliminarMeta(id, cargarMetas);
-              cargarMetas();
+              // cargarMetas(); // This is already called within controlador.eliminarMeta via the callback
               Navigator.pop(context);
             },
-            isDestructiveAction: true,
+            style: TextButton.styleFrom(
+              foregroundColor: CupertinoColors.activeBlue,
+            ),
             child: const Text("Eliminar"),
           ),
-          CupertinoDialogAction(
+          TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text("Cancelar"),
           ),

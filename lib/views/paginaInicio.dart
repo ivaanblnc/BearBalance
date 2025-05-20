@@ -1,17 +1,17 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart'; // For CupertinoColors
 import 'package:tfg_ivandelllanoblanco/components/paginaInicio_listaYEncabezado.dart';
-import 'package:tfg_ivandelllanoblanco/components/paginaInicio_navegacion2.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/paginaInicioControlador.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/metascontrollador.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/ahorroscontrolador.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tfg_ivandelllanoblanco/views/ahorros.dart'; 
+import 'package:tfg_ivandelllanoblanco/views/metas.dart';   
+import 'package:tfg_ivandelllanoblanco/views/perfilUsuario.dart'; 
 
-// Widget principal de la vista de la página de inicio
 class PaginaInicioVista extends StatefulWidget {
   final String nombreUsuario;
 
-  // Constructor que recibe el nombre del usuario
   const PaginaInicioVista(this.nombreUsuario, {super.key});
 
   @override
@@ -19,55 +19,33 @@ class PaginaInicioVista extends StatefulWidget {
 }
 
 class _PaginaInicioVistaState extends State<PaginaInicioVista> {
-  // Controladores para las metas, ahorros y datos de la página de inicio
   final MetasControlador controladorMetas = MetasControlador();
   final AhorrosControlador controladorAhorros = AhorrosControlador();
   late final PaginaInicioControlador controlador;
 
-  // Variable para gestionar el índice de la pestaña activa
   int indiceActual = 0;
 
   @override
   void initState() {
     super.initState();
-    // Inicializamos el controlador de la página de inicio con el nombre del usuario
     controlador = PaginaInicioControlador(widget.nombreUsuario);
   }
 
-  // Método para cargar los datos necesarios para la página de inicio
   Future<Map<String, dynamic>> _cargarDatos() async {
-    print("Iniciando carga de datos en _cargarDatos");
-
     try {
-      //Obtenemos las metas desde el controlador de metas
       final metas = await controladorMetas.obtenerMetas();
-      print("Metas obtenidas: $metas");
-
-      //Obtenemos los ahorros desde el controlador de ahorros
       final ahorros = await controladorAhorros.obtenerAhorros();
-      print("Ahorros obtenidos: $ahorros");
-
-      //Obtenemos el ID del usuario
       final usuarioActual = Supabase.instance.client.auth.currentUser?.id;
-      print("UserId en _cargarDatos: $usuarioActual");
-
-      // Si el ID del usuario no es nulo, obtenemos los datos del usuario
       Map<String, dynamic>? datosUsuario;
       if (usuarioActual != null) {
         datosUsuario = await controlador.obtenerDatosUsuario(usuarioActual);
-        print("Datos del usuario obtenidos: $datosUsuario");
-      } else {
-        datosUsuario = null;
       }
-
-      // Retornamos un mapa con las metas, los ahorros y los datos del usuario
       return {
         'metas': metas,
         'ahorros': ahorros,
         'userData': datosUsuario,
       };
     } catch (e) {
-      // Si ocurre un error, devolvemos un mapa vacío
       print("Error en _cargarDatos: ${e.toString()}");
       return {
         'metas': [],
@@ -77,44 +55,97 @@ class _PaginaInicioVistaState extends State<PaginaInicioVista> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(
-        currentIndex: indiceActual,
-        onTap: (index) {
-          // Actualizamos el índice de la pestaña seleccionada
-          setState(() {
-            indiceActual = index;
-          });
-        },
-        // Elementos de la barra de pestañas
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.show_chart), label: 'Render'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.playlist_add), label: 'Metas'),
-          BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Perfil'),
-        ],
-      ),
-      // Constructor de la vista para cada pestaña
-      tabBuilder: (BuildContext context, int index) {
-        return PaginaInicioTabViews(
-          indiceActual: index,
-          paginaInicioBuilder: (context, metas, ahorros, datosusuario) =>
-              PaginaInicioContenido(
+  List<Widget> _buildTabViews() {
+    return [
+      FutureBuilder<Map<String, dynamic>>(
+        future: _cargarDatos(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error al cargar datos: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data == null) {
+            return const Center(child: Text('No hay datos disponibles.'));
+          }
+
+          final metasData = snapshot.data!['metas'];
+          final ahorrosData = snapshot.data!['ahorros'];
+          final userData = snapshot.data!['userData'];
+
+          final metas = metasData is List
+              ? List<Map<String, dynamic>>.from(metasData)
+              : <Map<String, dynamic>>[];
+          final ahorros = ahorrosData is List
+              ? List<Map<String, dynamic>>.from(ahorrosData)
+              : <Map<String, dynamic>>[];
+
+          return PaginaInicioContenido(
             metas: metas,
             ahorros: ahorros,
-            datosusuario: datosusuario,
+            datosusuario: userData as Map<String, dynamic>?,
             controladorMetas: controladorMetas,
             controladorAhorros: controladorAhorros,
             nombreUsuario: widget.nombreUsuario,
             onPerfilTap: () => controlador.navegarAPerfil(context),
-          ),
-          cargarDatos: _cargarDatos,
-        );
-      },
+          );
+        },
+      ),
+      AhorrosVista(), 
+      MetasVista(),   
+      PerfilVista(),  
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> tabViews = _buildTabViews();
+
+    return Scaffold(
+      body: IndexedStack(
+        index: indiceActual,
+        children: tabViews,
+      ),
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10.0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).brightness == Brightness.light 
+                 ? Colors.white // O Theme.of(context).colorScheme.surface
+                 : Theme.of(context).colorScheme.surfaceContainer, // Ajustar para tema oscuro
+          borderRadius: const BorderRadius.all(Radius.circular(24.0)), // Todas las esquinas redondeadas
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              spreadRadius: 0,
+              offset: const Offset(0, 0), // Sombra sutil general
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(24.0)),
+          child: BottomNavigationBar(
+        currentIndex: indiceActual,
+        onTap: (index) {
+          setState(() {
+            indiceActual = index;
+          });
+        },
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
+          BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: 'Ahorros'), // Label cambiado de Render a Ahorros
+          BottomNavigationBarItem(icon: Icon(Icons.playlist_add), label: 'Metas'),
+          BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Perfil'),
+        ],
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: CupertinoColors.activeBlue,
+        unselectedItemColor: CupertinoColors.inactiveGray,
+        backgroundColor: Colors.transparent, // El Container ya le da color de fondo
+        elevation: 0, // El Container maneja la sombra
+      ),
+      ), // Cierre de ClipRRect
+      ), // Cierre de Container
     );
   }
 }

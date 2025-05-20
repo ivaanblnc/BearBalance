@@ -1,20 +1,17 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/cambiarTema.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/registroUsuarios.dart';
 import 'package:tfg_ivandelllanoblanco/views/InicioDeSesion.dart';
 
-/// Vista para la pantalla de registro de un nuevo usuario.
 class RegistroVista extends StatefulWidget {
   const RegistroVista({super.key});
 
   @override
-  _RegistroVistaState createState() => _RegistroVistaState();
+  State<RegistroVista> createState() => _RegistroVistaState();
 }
 
 class _RegistroVistaState extends State<RegistroVista> {
-  // Controladores de texto para los campos de entrada de datos del formulario.
   final RegistroControlador controlador = RegistroControlador();
   final TextEditingController controladorNombre = TextEditingController();
   final TextEditingController controladorApellidos = TextEditingController();
@@ -26,175 +23,154 @@ class _RegistroVistaState extends State<RegistroVista> {
 
   @override
   Widget build(BuildContext context) {
-    // Obtenemos el estado del modo oscuro desde el proveedor CambiarTema.
     final proveedorTema = Provider.of<CambiarTema>(context);
     final esModoOscuro = proveedorTema.modoOscuro;
 
-    return CupertinoApp(
-      debugShowCheckedModeBanner: false,
-      theme: CupertinoThemeData(
-        brightness: esModoOscuro ? Brightness.dark : Brightness.light,
-      ),
-      home: CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          leading: CupertinoButton(
-            padding: EdgeInsets.zero,
-            child: Icon(
-              Icons.arrow_back_ios_rounded,
-              size: 24.0,
-              color: esModoOscuro ? CupertinoColors.white : Colors.indigoAccent,
-            ),
-            onPressed: () {
-              showCupertinoDialog(
-                context: context,
-                builder: (builder) {
-                  return CupertinoAlertDialog(
-                    title: Text(
-                      "¿Estás seguro de que quieres salir?",
-                      style: TextStyle(
-                          color: esModoOscuro
-                              ? CupertinoColors.white
-                              : CupertinoColors.black),
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: esModoOscuro ? Colors.white : Theme.of(context).colorScheme.primary,
+          ),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext dialogContext) {
+                return AlertDialog(
+                  title: Text("¿Estás seguro de que quieres salir?"),
+                  content: Text("Perderás los datos introducidos."),
+                  actions: [
+                    TextButton(
+                      child: Text("No"),
+                      onPressed: () => Navigator.of(dialogContext).pop(), 
                     ),
-                    actions: [
-                      CupertinoDialogAction(
-                        child: Text("No",
-                            style: TextStyle(
-                                color: esModoOscuro
-                                    ? CupertinoColors.white
-                                    : CupertinoColors.black)),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      CupertinoDialogAction(
-                        child: Text("Si",
-                            style: TextStyle(
-                                color: CupertinoColors.destructiveRed)),
-                        onPressed: () => Navigator.push(
+                    TextButton(
+                      child: Text("Si", style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                      onPressed: () {
+                        Navigator.of(dialogContext).pop(); // Close dialog first
+                        Navigator.pushReplacement( 
                           context,
-                          CupertinoPageRoute(
+                          MaterialPageRoute(
                             builder: (context) => InicioSesion(),
                           ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-          middle: Text("Registro",
-              style: TextStyle(
-                  color: esModoOscuro
-                      ? CupertinoColors.white
-                      : CupertinoColors.black)),
+                        );
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          },
         ),
-        child: Padding(
-          padding: EdgeInsets.all(20),
+        title: Text("Registro", style: TextStyle(color: const Color(0xFF007AFF), fontSize: 20, fontWeight: FontWeight.bold)),
+        centerTitle: true, 
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        child: SingleChildScrollView( 
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Campo para ingresar el nombre del usuario.
-              CupertinoTextField(
+              TextField(
                 controller: controladorNombre,
-                placeholder: "Nombre",
-                padding: EdgeInsets.all(12),
-                style: TextStyle(
-                    color: esModoOscuro
-                        ? CupertinoColors.white
-                        : CupertinoColors.black),
-                placeholderStyle: TextStyle(color: CupertinoColors.systemGrey3),
-                decoration: BoxDecoration(
-                  color: esModoOscuro
-                      ? const Color(0xFF1E1E1E)
-                      : CupertinoColors.white,
-                  border: Border.all(color: CupertinoColors.systemGrey4),
-                  borderRadius: BorderRadius.circular(5),
+                style: TextStyle(color: esModoOscuro ? Colors.white : Colors.black),
+                cursorColor: const Color(0xFF007AFF),
+                decoration: InputDecoration(
+                  labelText: "Nombre",
+                  labelStyle: TextStyle(color: esModoOscuro ? Colors.grey[400] : Colors.grey[700]),
+                  filled: true,
+                  fillColor: esModoOscuro ? Colors.grey[800] : Colors.grey[200],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: EdgeInsets.all(12),
                 ),
               ),
               SizedBox(height: 15),
-              // Campo para ingresar los apellidos del usuario.
-              CupertinoTextField(
+              TextField(
                 controller: controladorApellidos,
-                placeholder: "Apellidos",
-                padding: EdgeInsets.all(12),
-                style: TextStyle(
-                    color: esModoOscuro
-                        ? CupertinoColors.white
-                        : CupertinoColors.black),
-                placeholderStyle: TextStyle(color: CupertinoColors.systemGrey3),
-                decoration: BoxDecoration(
-                  color: esModoOscuro
-                      ? const Color(0xFF1E1E1E)
-                      : CupertinoColors.white,
-                  border: Border.all(color: CupertinoColors.systemGrey4),
-                  borderRadius: BorderRadius.circular(5),
+                style: TextStyle(color: esModoOscuro ? Colors.white : Colors.black),
+                cursorColor: const Color(0xFF007AFF),
+                decoration: InputDecoration(
+                  labelText: "Apellidos",
+                  labelStyle: TextStyle(color: esModoOscuro ? Colors.grey[400] : Colors.grey[700]),
+                  filled: true,
+                  fillColor: esModoOscuro ? Colors.grey[800] : Colors.grey[200],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: EdgeInsets.all(12),
                 ),
               ),
               SizedBox(height: 15),
-              // Campo para ingresar el correo electrónico del usuario.
-              CupertinoTextField(
+              TextField(
                 controller: controladorCorreoElectronico,
-                placeholder: "Correo electrónico",
-                padding: EdgeInsets.all(12),
                 keyboardType: TextInputType.emailAddress,
-                style: TextStyle(
-                    color: esModoOscuro
-                        ? CupertinoColors.white
-                        : CupertinoColors.black),
-                placeholderStyle: TextStyle(color: CupertinoColors.systemGrey3),
-                decoration: BoxDecoration(
-                  color: esModoOscuro
-                      ? const Color(0xFF1E1E1E)
-                      : CupertinoColors.white,
-                  border: Border.all(color: CupertinoColors.systemGrey4),
-                  borderRadius: BorderRadius.circular(5),
+                style: TextStyle(color: esModoOscuro ? Colors.white : Colors.black),
+                cursorColor: const Color(0xFF007AFF),
+                decoration: InputDecoration(
+                  labelText: "Correo electrónico",
+                  labelStyle: TextStyle(color: esModoOscuro ? Colors.grey[400] : Colors.grey[700]),
+                  filled: true,
+                  fillColor: esModoOscuro ? Colors.grey[800] : Colors.grey[200],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: EdgeInsets.all(12),
                 ),
               ),
               SizedBox(height: 15),
-              // Campo para ingresar el nombre de usuario.
-              CupertinoTextField(
+              TextField(
                 controller: controladorNombreUsuario,
-                placeholder: "Nombre de usuario",
-                padding: EdgeInsets.all(12),
-                style: TextStyle(
-                    color: esModoOscuro
-                        ? CupertinoColors.white
-                        : CupertinoColors.black),
-                placeholderStyle: TextStyle(color: CupertinoColors.systemGrey3),
-                decoration: BoxDecoration(
-                  color: esModoOscuro
-                      ? const Color(0xFF1E1E1E)
-                      : CupertinoColors.white,
-                  border: Border.all(color: CupertinoColors.systemGrey4),
-                  borderRadius: BorderRadius.circular(5),
+                style: TextStyle(color: esModoOscuro ? Colors.white : Colors.black),
+                cursorColor: const Color(0xFF007AFF),
+                decoration: InputDecoration(
+                  labelText: "Nombre de usuario",
+                  labelStyle: TextStyle(color: esModoOscuro ? Colors.grey[400] : Colors.grey[700]),
+                  filled: true,
+                  fillColor: esModoOscuro ? Colors.grey[800] : Colors.grey[200],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: EdgeInsets.all(12),
                 ),
               ),
               SizedBox(height: 15),
-              // Campo para ingresar la contraseña.
-              CupertinoTextField(
+              TextField(
                 controller: controladorContrasena,
-                placeholder: "Contraseña",
                 obscureText: true,
-                padding: EdgeInsets.all(12),
-                style: TextStyle(
-                    color: esModoOscuro
-                        ? CupertinoColors.white
-                        : CupertinoColors.black),
-                placeholderStyle: TextStyle(color: CupertinoColors.systemGrey3),
-                decoration: BoxDecoration(
-                  color: esModoOscuro
-                      ? const Color(0xFF1E1E1E)
-                      : CupertinoColors.white,
-                  border: Border.all(color: CupertinoColors.systemGrey4),
-                  borderRadius: BorderRadius.circular(5),
+                style: TextStyle(color: esModoOscuro ? Colors.white : Colors.black),
+                cursorColor: const Color(0xFF007AFF),
+                decoration: InputDecoration(
+                  labelText: "Contraseña",
+                  labelStyle: TextStyle(color: esModoOscuro ? Colors.grey[400] : Colors.grey[700]),
+                  filled: true,
+                  fillColor: esModoOscuro ? Colors.grey[800] : Colors.grey[200],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: EdgeInsets.all(12),
                 ),
               ),
               SizedBox(height: 30),
-              // Botón para registrar al usuario
               SizedBox(
                 width: double.infinity,
-                child: CupertinoButton.filled(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF007AFF), // Cupertino Blue
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
                   onPressed: () async {
                     await controlador.registrarUsuario(
                       controladorNombre.text,

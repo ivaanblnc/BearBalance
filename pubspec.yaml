@@ -17,6 +17,7 @@ dependencies:
   cached_network_image: ^3.4.1
   shared_preferences: ^2.5.3
   provider: ^6.1.4
+  fl_chart: ^0.71.0
 
 
 

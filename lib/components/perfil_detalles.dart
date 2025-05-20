@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/cambiarTema.dart';
@@ -46,14 +46,14 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
   }
 
   void _mostrarMensaje(BuildContext scaffoldContext, String mensaje, {bool esError = false}) {
-    showCupertinoDialog(
+    showDialog(
       context: scaffoldContext,
       builder: (BuildContext dialogContext) {
-        return CupertinoAlertDialog(
+        return AlertDialog(
           title: Text(esError ? 'Error' : 'Información'),
           content: Text(mensaje),
           actions: <Widget>[
-            CupertinoDialogAction(
+            TextButton(
               child: const Text('Aceptar'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
@@ -98,77 +98,54 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
     TextEditingController valorController,
     CambiarTema proveedorTema,
   ) {
-    final esModoOscuro = proveedorTema.modoOscuro;
     final bool esCampoSensibleGoogle = (nombreCampo == 'email' || nombreCampo == 'contrasena') && _esUsuarioGoogle;
 
-    final Color colorFilaLista = esModoOscuro ? const Color(0xFF1E1E1E) : CupertinoColors.systemGrey6;
-    final Color colorTextoTitulo = esModoOscuro ? CupertinoColors.white : CupertinoColors.black;
-    final Color colorTextoValor = esModoOscuro ? CupertinoColors.lightBackgroundGray : CupertinoColors.black;
-
-    return CupertinoListTile(
-      backgroundColor: colorFilaLista,
+    return ListTile(
       title: Text(
         etiqueta,
-        style: TextStyle(color: colorTextoTitulo),
+        style: TextStyle(fontWeight: FontWeight.w500),
       ),
-      additionalInfo: Text(
-        nombreCampo == 'contrasena'
-            ? (_esUsuarioGoogle ? "••••••••" : (valorController.text.isNotEmpty ? "••••••••" : "Establecer contraseña"))
-            : valorController.text,
-        style: TextStyle(color: colorTextoValor),
+      subtitle: Text(
+        nombreCampo == 'contrasena' && !_esUsuarioGoogle && valorController.text.isNotEmpty ? '********' : (nombreCampo == 'contrasena' && _esUsuarioGoogle ? 'Vinculado con Google' : valorController.text),
       ),
-      trailing: null,
+      trailing: esCampoSensibleGoogle
+          ? Icon(Icons.lock, color: Theme.of(context).disabledColor)
+          : Icon(Icons.edit, color: Theme.of(context).colorScheme.secondary),
       onTap: esCampoSensibleGoogle
-          ? () {
-              _mostrarMensaje(
-                widget.contexto,
-                "Los usuarios de Google no pueden modificar su ${nombreCampo == 'email' ? 'correo electrónico' : 'contraseña'} directamente desde aquí.",
-              );
-            }
+          ? null
           : () {
-              TextEditingController controladorDialog = TextEditingController(text: (nombreCampo == 'contrasena' ? '' : valorController.text));
-              if (_errores.containsKey(nombreCampo)) {
-                setState(() { _errores.remove(nombreCampo); });
-              }
-
-              showCupertinoDialog(
-                context: widget.contexto,
+              _errores[nombreCampo] = null; // Limpiar errores previos
+              showDialog(
+                context: context,
                 builder: (BuildContext contextoDialogoInterno) {
+                  final controladorDialog = TextEditingController(text: nombreCampo == 'contrasena' ? '' : valorController.text);
                   return StatefulBuilder(
-                    builder: (context, setStateDialog) {
-                      return CupertinoAlertDialog(
+                    builder: (BuildContext context, StateSetter setStateDialog) {
+                      return AlertDialog(
                         title: Text('Editar $etiqueta'),
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            CupertinoTextField(
+                            TextFormField(
                               controller: controladorDialog,
-                              placeholder: (nombreCampo == 'contrasena' ? 'Nueva contraseña' : 'Nuevo valor para $etiqueta'),
-                              autofocus: true,
-                              obscureText: nombreCampo == 'contrasena',
-                              onChanged: (value) {
-                                if (_errores[nombreCampo] != null) {
-                                  setStateDialog(() { _errores.remove(nombreCampo); });
-                                }
-                              },
-                            ),
-                            if (_errores[nombreCampo] != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  _errores[nombreCampo]!,
-                                  style: const TextStyle(color: CupertinoColors.destructiveRed, fontSize: 12),
-                                ),
+                              decoration: InputDecoration(
+                                labelText: 'Nuevo $etiqueta',
+                                errorText: _errores[nombreCampo],
                               ),
+                              obscureText: nombreCampo == 'contrasena',
+                              autocorrect: nombreCampo != 'contrasena',
+                              enableSuggestions: nombreCampo != 'contrasena',
+                              keyboardType: nombreCampo == 'email' ? TextInputType.emailAddress : TextInputType.text,
+                            ),
                           ],
                         ),
-                        actions: [
-                          CupertinoDialogAction(
-                            child: const Text("Cancelar"),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text('Cancelar'),
                             onPressed: () => Navigator.pop(contextoDialogoInterno),
                           ),
-                          CupertinoDialogAction(
-                            child: const Text("Aceptar"),
+                          TextButton(
+                            child: const Text('Guardar'),
                             onPressed: () async {
                               final nuevoValor = controladorDialog.text.trim();
                               String? errorMsg;
@@ -224,31 +201,32 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
   @override
   Widget build(BuildContext context) {
     final proveedorTema = Provider.of<CambiarTema>(context);
-    final esModoOscuro = proveedorTema.modoOscuro;
+    // final esModoOscuro = proveedorTema.modoOscuro; // Keep for now if other logic depends on it, otherwise remove
 
-    final Color colorFondoSeccion = esModoOscuro ? CupertinoColors.black : CupertinoColors.white;
-    final Color colorHeaderText = esModoOscuro ? CupertinoColors.white : CupertinoColors.black;
-
-    return CupertinoListSection.insetGrouped(
-      backgroundColor: colorFondoSeccion,
-      header: Padding(
-        padding: const EdgeInsets.only(left: 16.0, top: 20.0, bottom: 8.0),
-        child: Text(
-          "Información del Perfil",
-          style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: colorHeaderText,
+    return Card(
+      margin: const EdgeInsets.all(16.0),
+      elevation: 2.0, // Optional: adds a subtle shadow
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 8.0),
+            child: Text(
+              "Información del Perfil",
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    // color: colorHeaderText, // Removed for Material default
+                  ),
+            ),
           ),
-        ),
+          _buildEditableField('Nombre', 'nombre', _controllers['nombre']!, proveedorTema),
+          _buildEditableField('Apellidos', 'apellidos', _controllers['apellidos']!, proveedorTema),
+          _buildEditableField('Nombre de usuario', 'nombre_usuario', _controllers['nombre_usuario']!, proveedorTema),
+          _buildEditableField('Email', 'email', _controllers['email']!, proveedorTema),
+          if (!_esUsuarioGoogle) // Only show password field if not a Google user
+             _buildEditableField('Contraseña', 'contrasena', _controllers['contrasena']!, proveedorTema),
+        ],
       ),
-      children: <Widget>[
-        _buildEditableField('Nombre', 'nombre', _controllers['nombre']!, proveedorTema),
-        _buildEditableField('Apellidos', 'apellidos', _controllers['apellidos']!, proveedorTema),
-        _buildEditableField('Nombre de usuario', 'nombre_usuario', _controllers['nombre_usuario']!, proveedorTema),
-        _buildEditableField('Email', 'email', _controllers['email']!, proveedorTema),
-        _buildEditableField('Contraseña', 'contrasena', _controllers['contrasena']!, proveedorTema),
-      ],
     );
   }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tfg_ivandelllanoblanco/components/grafico_paginaInicial.dart';
 import 'package:tfg_ivandelllanoblanco/components/mensaje_listametas_vacia.dart';
@@ -52,83 +51,123 @@ class PaginaInicioContenido extends StatelessWidget {
       ahorro.saldo = currentSaldo;
     }
 
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Bienvenido ',
-              style: const TextStyle(color: CupertinoColors.black),
+    return Scaffold( // Changed from CupertinoPageScaffold
+      appBar: AppBar( // Changed from CupertinoNavigationBar
+        leadingWidth: 200, // Increase width to accommodate the greeting
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: RichText(
+              text: TextSpan(
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.normal, // Regular weight for "Hola,"
+                    ),
+                children: <TextSpan>[
+                  TextSpan(text: 'Hola, '),
+                  TextSpan(
+                      text: nombreUsuario,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, 
+                          color: Theme.of(context).colorScheme.primary
+                      )
+                  ),
+                ],
+              ),
             ),
-            Text(nombreUsuario,
-                style: const TextStyle(color: CupertinoColors.link)),
-          ],
-        ),
-        trailing: GestureDetector(
-          onTap: onPerfilTap,
-          child: CircleAvatar(
-            backgroundImage:
-                datosusuario != null && datosusuario?['imagen_perfil'] != null
-                    ? NetworkImage(datosusuario?['imagen_perfil'])
-                    : null,
-            child:
-                datosusuario == null || datosusuario?['imagen_perfil'] == null
-                    ? const Icon(Icons.account_circle_outlined)
-                    : null,
           ),
         ),
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Text("Saldo Actual: ${saldoActual.toStringAsFixed(2)} €",
-                    style: TextStyle(color: CupertinoColors.activeBlue)),
+        title: Text(''), // Empty title,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: GestureDetector(
+              onTap: onPerfilTap,
+              child: CircleAvatar(
+                backgroundImage:
+                    datosusuario != null && datosusuario?['imagen_perfil'] != null
+                        ? NetworkImage(datosusuario!['imagen_perfil']) // Added ! for null safety, ensure datosusuario is checked
+                        : null,
+                child: datosusuario == null || datosusuario?['imagen_perfil'] == null
+                    ? const Icon(Icons.account_circle_outlined)
+                    : null,
               ),
             ),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Align(
-                alignment: Alignment.topLeft,
+          ),
+        ],
+        backgroundColor: Theme.of(context).colorScheme.surface, // Or primary, or transparent
+        elevation: 0, // For a flatter look, adjust as needed
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView( // Added SingleChildScrollView for potentially long content
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start, // Align content to the start
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Text(
-                  "Rendimiento: ",
-                  style: TextStyle(
-                    color: CupertinoColors.activeBlue,
-                  ),
+                  "Saldo Actual: ${saldoActual.toStringAsFixed(2)} €",
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ),
-            ),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-            Flexible(child: GraficoAhorros(ahorrosList: listaAhorros)),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-            if (metas.isEmpty)
-              MensajeVacioMetas(
-                  mostrarIcono: false,
-                  mostrarTextoSecundario: false,
-                  mostrarBoton: false)
-            else
+              // SizedBox(height: MediaQuery.of(context).size.height * 0.02), // Consider removing or reducing for tighter layout
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  children: [
-                    Icon(Icons.flag_circle),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text("Metas",
-                          style: TextStyle(fontSize: 18, color: Colors.blue)),
-                    )
-                  ],
+                child: Text(
+                  "Rendimiento:",
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant, // Softer color
+                      ),
                 ),
               ),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-            Flexible(
-                child: ListaMetas(metas: metas, controlador: controladorMetas)),
-          ],
+              SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Reduced spacing
+              Container( // Added container for chart constraints
+                height: MediaQuery.of(context).size.height * 0.3, // Example height constraint
+                padding: const EdgeInsets.symmetric(horizontal: 8.0), // Padding for chart
+                child: GraficoAhorros(ahorrosList: listaAhorros)
+              ),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+              if (metas.isEmpty)
+                Padding( // Added padding for consistency
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: MensajeVacioMetas(
+                      mostrarIcono: false,
+                      mostrarTextoSecundario: false,
+                      mostrarBoton: false),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      Icon(Icons.flag_circle, color: Theme.of(context).colorScheme.secondary),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Metas",
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      )
+                    ],
+                  ),
+                ),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Reduced spacing
+              // Removed Flexible from ListaMetas as it's inside SingleChildScrollView
+              Padding( // Added padding for consistency
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ListaMetas(
+                  metas: metas, 
+                  controlador: controladorMetas,
+                  isNested: true, // Added to specify nested context
+                ),
+              ),
+              SizedBox(height: 20), // Add some padding at the bottom
+            ],
+          ),
         ),
       ),
     );

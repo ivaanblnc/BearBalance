@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart'; // Cambiado de cupertino a material
 import 'package:tfg_ivandelllanoblanco/controllers/ahorroscontrolador.dart';
 
 class EliminarAhorroDialog {
@@ -9,27 +9,40 @@ class EliminarAhorroDialog {
   ) async {
     final AhorrosControlador controladorAhorros = AhorrosControlador();
 
-    showCupertinoDialog(
+    final theme = Theme.of(context);
+
+    showDialog(
       context: context,
       builder: (BuildContext context) {
-        return CupertinoAlertDialog(
+        return AlertDialog(
           title: const Text('¿Eliminar Movimiento?'),
           content: const Text(
-              '¿Estás seguro de que quieres eliminar este movimiento?'),
+              '¿Estás seguro de que quieres eliminar este movimiento? Esta acción no se puede deshacer.'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
           actions: <Widget>[
-            CupertinoDialogAction(
+            TextButton(
               child: const Text('Cancelar'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Cierra el diálogo
               },
             ),
-            CupertinoDialogAction(
-              child: const Text('Eliminar',
-                  style: TextStyle(color: CupertinoColors.destructiveRed)),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: theme.colorScheme.error),
+              child: const Text('Eliminar'),
               onPressed: () async {
-                await controladorAhorros.eliminarAhorro(idAhorro);
-                await cargarDatos();
-                Navigator.of(context).pop();
+                try {
+                  await controladorAhorros.eliminarAhorro(idAhorro);
+                  await cargarDatos(); 
+                  if (context.mounted) Navigator.of(context).pop(); // Cierra el diálogo
+                } catch (e) {
+                  // Manejar error, quizás mostrar un SnackBar
+                  if (context.mounted) {
+                    Navigator.of(context).pop(); // Cierra el diálogo igualmente
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error al eliminar: ${e.toString()}')),
+                    );
+                  }
+                }
               },
             ),
           ],

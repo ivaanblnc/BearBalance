@@ -1,9 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart'; // For CupertinoColors
 import 'package:tfg_ivandelllanoblanco/components/dialogoMetas.dart';
 import 'package:tfg_ivandelllanoblanco/components/eliminar_metas.dart';
 import 'package:tfg_ivandelllanoblanco/components/mensaje_listametas_vacia.dart';
-import 'package:tfg_ivandelllanoblanco/components/opciones_metas.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/metascontrollador.dart';
 import 'package:tfg_ivandelllanoblanco/components/lista_metas.dart';
 
@@ -33,12 +32,17 @@ class MetasViewState extends State<MetasVista> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle:
-            Text("Metas", style: TextStyle(color: CupertinoColors.activeBlue)),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Metas"),
+        backgroundColor: theme.scaffoldBackgroundColor,
+        elevation: 0,
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: Column(
           children: [
             if (metas.isEmpty)
@@ -50,27 +54,12 @@ class MetasViewState extends State<MetasVista> {
               )
             else ...[
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Lista de Metas",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: CupertinoColors.activeBlue,
-                      ),
-                    ),
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      child: const Icon(Icons.add),
-                      onPressed: () =>
-                          mostrarDialogoCrearModificarMeta(context),
-                    ),
-                  ],
+                padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                child: Text(
+                  "Lista de Metas",
+                  style: textTheme.titleLarge?.copyWith(color: colorScheme.onSurface),
                 ),
               ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.02),
               Expanded(
                 child: ListaMetas(
                   metas: metas,
@@ -78,48 +67,99 @@ class MetasViewState extends State<MetasVista> {
                   onMetaTap: _mostrarOpcionesMeta,
                 ),
               ),
-              Column(
-                children: [
-                  if (metas.isNotEmpty) ...[
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: const Text(
-                        "¿Quieres aprender a llegar a tus objetivos más rápido? Consulta estos cursos:",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: CupertinoColors.activeBlue,
-                        ),
+              if (metas.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Card(
+                    elevation: 0.5,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                    color: colorScheme.surfaceContainerLowest,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            "¿Quieres aprender a llegar a tus objetivos más rápido? Consulta estos cursos:",
+                            style: textTheme.titleMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: CupertinoColors.activeBlue,
+                              foregroundColor: CupertinoColors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                              textStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            child: const Text("Explorar Ahora"),
+                            onPressed: () => controlador.lanzarNavegador(),
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                    CupertinoButton.filled(
-                      child: const Text("Explorar Ahora"),
-                      onPressed: () => controlador.lanzarNavegador(),
-                    ),
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                  ],
-                ],
-              ),
+                  ),
+                ),
             ],
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => mostrarDialogoCrearModificarMeta(context),
+        backgroundColor: CupertinoColors.activeBlue,
+        foregroundColor: CupertinoColors.white,
+        child: const Icon(Icons.add),
       ),
     );
   }
 
   void _mostrarOpcionesMeta(Map<String, dynamic> meta) {
-    OpcionesMetaDialog.mostrarOpcionesMeta(context, meta, this);
+    final theme = Theme.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: theme.colorScheme.surfaceContainerLowest,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.edit_note, color: theme.colorScheme.primary),
+                title: Text('Actualizar Meta', style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurface)),
+                onTap: () {
+                  Navigator.pop(context); // Cierra el bottom sheet
+                  mostrarDialogoCrearModificarMeta(context, meta: meta);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete_outline, color: theme.colorScheme.error),
+                title: Text('Eliminar Meta', style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.error)),
+                onTap: () {
+                  Navigator.pop(context); // Cierra el bottom sheet
+                  eliminarItemMeta(meta['id']);
+                },
+              ),
+              Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+              ListTile(
+                leading: Icon(Icons.cancel_outlined, color: theme.colorScheme.onSurfaceVariant),
+                title: Text('Cancelar', style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                onTap: () {
+                  Navigator.pop(context); // Cierra el bottom sheet
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void eliminarItemMeta(int id) {
     EliminarMetaDialog.eliminarItemMeta(
-        context, id, this, controlador, _cargarMetas);
+        context, id, controlador, _cargarMetas);
   }
 
   void mostrarDialogoCrearModificarMeta(BuildContext context,
       {Map<String, dynamic>? meta}) {
-    showCupertinoDialog(
+    showDialog(
       context: context,
       builder: (context) => DialogoMetas(
         controlador: controlador,

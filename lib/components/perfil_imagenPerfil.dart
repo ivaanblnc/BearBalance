@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -45,8 +45,12 @@ class PerfilImagen extends StatelessWidget {
                       height: size,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Center(
-                        child: CupertinoActivityIndicator(
-                          radius: size / 4,
+                        child: SizedBox(
+                          width: size / 2, // Adjust size as needed
+                          height: size / 2, // Adjust size as needed
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.0, // Optional: adjust stroke width
+                          ),
                         ),
                       ),
                       errorWidget: (context, url, error) => Image.asset(
@@ -64,13 +68,12 @@ class PerfilImagen extends StatelessWidget {
                 ),
         ),
         const SizedBox(height: 20),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
+        TextButton(
           onPressed: () =>
               kIsWeb ? _showWebMessage(context) : onImageUpload(context),
           child: const Text(
             "Actualizar Foto de Perfil",
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 16), // Consider using Theme.of(context).textTheme styles
           ),
         ),
       ],
@@ -78,15 +81,15 @@ class PerfilImagen extends StatelessWidget {
   }
 
   void _showWebMessage(BuildContext context) {
-    showCupertinoDialog(
+    showDialog(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text("Función no disponible"),
         content: const Text(
           "Para cambiar tu foto de perfil, usa la versión móvil de la aplicación.",
         ),
         actions: [
-          CupertinoDialogAction(
+          TextButton(
             child: const Text("OK"),
             onPressed: () => Navigator.pop(context),
           ),
