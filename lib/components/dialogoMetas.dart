@@ -37,6 +37,9 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
   @override
   void initState() {
     super.initState();
+    final hoy = DateTime.now();
+    final manana = DateTime(hoy.year, hoy.month, hoy.day + 1); // Tomorrow, time set to 00:00
+
     if (widget.meta != null) {
       _tituloController.text = widget.meta!['titulo'] ?? '';
       _cantidadAhorradaController.text =
@@ -46,22 +49,35 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
       if (widget.meta!['fecha_limite'] != null &&
           widget.meta!['fecha_limite'].isNotEmpty) {
         _fechaLimite = DateTime.parse(widget.meta!['fecha_limite']);
-        _fechaLimiteController.text = widget.meta!['fecha_limite'];
+        // Ensure _fechaLimite is not in the past for existing goals if editing
+        if (_fechaLimite.isBefore(manana)) {
+          _fechaLimite = manana;
+        }
+        _fechaLimiteController.text = DateFormat('yyyy-MM-dd').format(_fechaLimite);
       } else {
-        _fechaLimiteController.text =
-            "${_fechaLimite.year}-${_fechaLimite.month.toString().padLeft(2, '0')}-${_fechaLimite.day.toString().padLeft(2, '0')}";
+        _fechaLimite = manana; // Default to tomorrow if existing goal has no date
+        _fechaLimiteController.text = DateFormat('yyyy-MM-dd').format(_fechaLimite);
       }
     } else {
-      _fechaLimiteController.text =
-          "${_fechaLimite.year}-${_fechaLimite.month.toString().padLeft(2, '0')}-${_fechaLimite.day.toString().padLeft(2, '0')}";
+      // New goal: default date to tomorrow
+      _fechaLimite = manana;
+      _fechaLimiteController.text = DateFormat('yyyy-MM-dd').format(_fechaLimite);
     }
   }
 
   Future<void> _mostrarSelectorFecha(BuildContext context) async {
+    final hoy = DateTime.now();
+    final manana = DateTime(hoy.year, hoy.month, hoy.day + 1);
+
+    DateTime pickerInitialDate = _fechaLimite;
+    if (pickerInitialDate.isBefore(manana)) {
+      pickerInitialDate = manana;
+    }
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _fechaLimite,
-      firstDate: DateTime(2000),
+      initialDate: pickerInitialDate, // Initial date set to tomorrow or later valid date
+      firstDate: manana, // First selectable date is tomorrow
       lastDate: DateTime(2101),
       // helpText: 'Seleccionar Fecha Límite',
       // cancelText: 'Cancelar',
@@ -109,11 +125,21 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
     if (value == null || value.trim().isEmpty) {
       return "La fecha no puede estar vacía.";
     }
+    DateTime fechaSeleccionada;
     try {
-      DateFormat('yyyy-MM-dd').parseStrict(value);
+      fechaSeleccionada = DateFormat('yyyy-MM-dd').parseStrict(value);
     } catch (e) {
       return 'Formato de fecha inválido (YYYY-MM-DD).';
     }
+
+    // Normalizar 'hoy' a medianoche para una comparación justa de solo fecha
+    final hoy = DateTime.now();
+    final hoyNormalizado = DateTime(hoy.year, hoy.month, hoy.day);
+
+    if (!fechaSeleccionada.isAfter(hoyNormalizado)) {
+      return "La fecha debe ser posterior al día de hoy.";
+    }
+
     return null;
   }
 

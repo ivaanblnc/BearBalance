@@ -238,11 +238,10 @@ class GraficoAhorros extends StatelessWidget {
                 lineTouchData: LineTouchData(
                   enabled: true,
                   touchTooltipData: LineTouchTooltipData(
-                    getTooltipColor: (_) => esModoOscuro 
-                        ? Colors.black.withOpacity(0.8) 
-                        : Colors.white.withOpacity(0.9),
+                    tooltipMargin: 16.0, // Añadido para empujar el tooltip hacia abajo
+                    getTooltipColor: (_) => esModoOscuro ? Colors.black.withOpacity(0.85) : Colors.white.withOpacity(0.85),
                     tooltipRoundedRadius: 8,
-                    tooltipMargin: 16, // Empuja el tooltip hacia abajo (como double)
+                    tooltipPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((barSpot) {
                         final date = DateTime.fromMillisecondsSinceEpoch(barSpot.x.toInt());
@@ -254,22 +253,23 @@ class GraficoAhorros extends StatelessWidget {
                           TextStyle(
                             color: color,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            fontSize: 10,
                           ),
                           children: [
                             TextSpan(
                               text: '\n${NumberFormat.currency(locale: 'es', symbol: '€').format(barSpot.y)}',
                               style: TextStyle(
-                                color: esModoOscuro ? Colors.white : Colors.black87,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                                color: esModoOscuro ? Colors.white : Colors.black,
+                                fontSize: 9,
+                                fontWeight: FontWeight.normal,
                               ),
                             ),
                             TextSpan(
                               text: '\nQ${(date.month - 1) ~/ 3 + 1} ${date.year}',
                               style: TextStyle(
-                                color: esModoOscuro ? Colors.white60 : Colors.black54,
-                                fontSize: 12,
+                                color: esModoOscuro ? Colors.white70 : Colors.black54,
+                                fontSize: 8,
+                                height: 1.4, 
                               ),
                             ),
                           ],

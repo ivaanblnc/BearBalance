@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:tfg_ivandelllanoblanco/views/paginaInicio.dart';
 import 'package:intl/date_symbol_data_local.dart'; // Importación añadida
 import 'package:flutter_spinkit/flutter_spinkit.dart'; // Import flutter_spinkit
+import 'package:tfg_ivandelllanoblanco/my_custom_scroll_behavior.dart'; // Importa el ScrollBehavior personalizado
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,6 +74,7 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     if (_cargando) {
       return MaterialApp(
+        scrollBehavior: MyCustomScrollBehavior(), // Aplica el ScrollBehavior
         home: Scaffold(
           body: Center(
             child: SpinKitFadingCube(
@@ -86,6 +88,7 @@ class _MainAppState extends State<MainApp> {
     }
 
     return MaterialApp(
+      scrollBehavior: MyCustomScrollBehavior(), // Aplica el ScrollBehavior
       home:
           _sesionIniciada ? PaginaInicioVista(_nombreUsuario) : InicioSesion(),
       routes: {

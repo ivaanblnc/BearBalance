@@ -100,6 +100,7 @@ class CompactFinanceChart extends StatelessWidget {
                   lineTouchData: LineTouchData(
                     enabled: true,
                     touchTooltipData: LineTouchTooltipData(
+                      tooltipMargin: 12.0, // Ajusta el margen alrededor del tooltip (antes tooltipBottomMargin)
                       getTooltipColor: (_) => isDark
                           ? Colors.grey[800]!.withOpacity(0.95)
                           : Colors.white.withOpacity(0.95),
@@ -111,7 +112,7 @@ class CompactFinanceChart extends StatelessWidget {
                             DateFormat('dd MMM', 'es_ES').format(date),
                             TextStyle(
                               color: textColor,
-                              fontSize: 10,
+                              fontSize: 9,
                             ),
                             children: [
                               TextSpan(
@@ -119,6 +120,7 @@ class CompactFinanceChart extends StatelessWidget {
                                 style: TextStyle(
                                   color: spot.y >= 0 ? positiveColor : negativeColor,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 9,
                                 ),
                               ),
                             ],

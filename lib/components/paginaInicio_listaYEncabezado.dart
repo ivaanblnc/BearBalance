@@ -116,7 +116,7 @@ class PaginaInicioContenido extends StatelessWidget {
               // SizedBox(height: MediaQuery.of(context).size.height * 0.02), // Consider removing or reducing for tighter layout
               SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Reduced spacing
               Container( // Added container for chart constraints
-                height: MediaQuery.of(context).size.height * 0.3, // Example height constraint
+                height: MediaQuery.of(context).size.height * 0.4, // Increased from 0.35 to 0.4
                 padding: const EdgeInsets.symmetric(horizontal: 8.0), // Padding for chart
                 child: GraficoAhorros(ahorrosList: listaAhorros)
               ),
