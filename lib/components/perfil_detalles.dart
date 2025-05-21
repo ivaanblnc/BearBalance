@@ -184,26 +184,29 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
                                   if (nombreCampo == 'email') {
                                     await _inicioSesionModelo
                                         .cambiarEmail(nuevoValor);
-                                    if (mounted)
+                                    if (mounted) {
                                       setState(() {
                                         valorController.text = nuevoValor;
                                       });
+                                    }
                                     opSuccess = true;
                                   } else if (nombreCampo == 'contrasena') {
                                     await _inicioSesionModelo
                                         .cambiarContrasena(nuevoValor);
-                                    if (mounted)
+                                    if (mounted) {
                                       setState(() {
                                         valorController.clear();
                                       });
+                                    }
                                     opSuccess = true;
                                   } else {
                                     await widget.onCampoActualizado(
                                         nombreCampo, nuevoValor);
-                                    if (mounted)
+                                    if (mounted) {
                                       setState(() {
                                         valorController.text = nuevoValor;
                                       });
+                                    }
                                     opSuccess = true;
                                   }
                                 } catch (e) {

@@ -184,7 +184,7 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    InputDecoration _inputDecoration(String label, String? errorText) {
+    InputDecoration inputDecoration(String label, String? errorText) {
       return InputDecoration(
         labelText: label,
         errorText: errorText,
@@ -217,14 +217,14 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
             children: [
               TextFormField(
                 controller: _tituloController,
-                decoration: _inputDecoration('Nombre de la meta', _tituloError),
+                decoration: inputDecoration('Nombre de la meta', _tituloError),
                 validator: _validarTitulo,
                 onChanged: (value) => setState(() => _tituloError = null),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _cantidadAhorradaController,
-                decoration: _inputDecoration(
+                decoration: inputDecoration(
                     'Cantidad ahorrada (€)', _cantidadAhorradaError),
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
@@ -235,7 +235,7 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _cantidadObjetivoController,
-                decoration: _inputDecoration(
+                decoration: inputDecoration(
                     'Cantidad objetivo (€)', _cantidadObjetivoError),
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
@@ -246,7 +246,7 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _fechaLimiteController,
-                decoration: _inputDecoration(
+                decoration: inputDecoration(
                     'Fecha Límite (YYYY-MM-DD)', _fechaLimiteError),
                 readOnly: true,
                 onTap: () => _mostrarSelectorFecha(context),
@@ -263,11 +263,11 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
         ),
         ElevatedButton(
           onPressed: _guardarMeta,
-          child: const Text('Guardar'),
           style: ElevatedButton.styleFrom(
             backgroundColor: theme.colorScheme.primary,
             foregroundColor: theme.colorScheme.onPrimary,
           ),
+          child: const Text('Guardar'),
         ),
       ],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),

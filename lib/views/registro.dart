@@ -27,30 +27,41 @@ class _RegistroVistaState extends State<RegistroVista> {
     final esModoOscuro = proveedorTema.modoOscuro;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: esModoOscuro ? Colors.white : Theme.of(context).colorScheme.primary,
+            color: esModoOscuro
+                ? Colors.white
+                : Theme.of(context).colorScheme.primary,
           ),
           onPressed: () {
             showDialog(
               context: context,
               builder: (BuildContext dialogContext) {
                 return AlertDialog(
-                  title: Text("¿Estás seguro de que quieres salir?", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                  content: Text("Perderás los datos introducidos.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  title: Text("¿Estás seguro de que quieres salir?",
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface)),
+                  content: Text("Perderás los datos introducidos.",
+                      style: TextStyle(
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant)),
                   actions: [
                     TextButton(
-                      child: Text("No", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
-                      onPressed: () => Navigator.of(dialogContext).pop(), 
+                      child: Text("No",
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary)),
+                      onPressed: () => Navigator.of(dialogContext).pop(),
                     ),
                     TextButton(
-                      child: Text("Si", style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                      child: Text("Si",
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.error)),
                       onPressed: () {
                         Navigator.of(dialogContext).pop(); // Close dialog first
-                        Navigator.pushReplacement( 
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const InicioSesion(),
@@ -64,34 +75,45 @@ class _RegistroVistaState extends State<RegistroVista> {
             );
           },
         ),
-        title: Text("Registro", style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 20, fontWeight: FontWeight.bold)),
-        centerTitle: true, 
+        title: Text("Registro",
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontSize: 20,
+                fontWeight: FontWeight.bold)),
+        centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView( 
+        child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               TextField(
                 controller: controladorNombre,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 cursorColor: Theme.of(context).colorScheme.primary,
                 decoration: InputDecoration(
                   labelText: "Nombre",
-                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
+                  labelStyle: TextStyle(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.7)),
                   filled: true,
-                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  fillColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary, width: 2),
                   ),
                   contentPadding: const EdgeInsets.all(12),
                 ),
@@ -99,20 +121,27 @@ class _RegistroVistaState extends State<RegistroVista> {
               const SizedBox(height: 15),
               TextField(
                 controller: controladorApellidos,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 cursorColor: Theme.of(context).colorScheme.primary,
                 decoration: InputDecoration(
                   labelText: "Apellidos",
-                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
+                  labelStyle: TextStyle(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.7)),
                   filled: true,
-                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  fillColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary, width: 2),
                   ),
                   contentPadding: const EdgeInsets.all(12),
                 ),
@@ -121,20 +150,27 @@ class _RegistroVistaState extends State<RegistroVista> {
               TextField(
                 controller: controladorCorreoElectronico,
                 keyboardType: TextInputType.emailAddress,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 cursorColor: Theme.of(context).colorScheme.primary,
                 decoration: InputDecoration(
                   labelText: "Correo electrónico",
-                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
+                  labelStyle: TextStyle(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.7)),
                   filled: true,
-                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  fillColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary, width: 2),
                   ),
                   contentPadding: const EdgeInsets.all(12),
                 ),
@@ -142,20 +178,27 @@ class _RegistroVistaState extends State<RegistroVista> {
               const SizedBox(height: 15),
               TextField(
                 controller: controladorNombreUsuario,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 cursorColor: Theme.of(context).colorScheme.primary,
                 decoration: InputDecoration(
                   labelText: "Nombre de usuario",
-                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
+                  labelStyle: TextStyle(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.7)),
                   filled: true,
-                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  fillColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary, width: 2),
                   ),
                   contentPadding: const EdgeInsets.all(12),
                 ),
@@ -164,20 +207,27 @@ class _RegistroVistaState extends State<RegistroVista> {
               TextField(
                 controller: controladorContrasena,
                 obscureText: true,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 cursorColor: Theme.of(context).colorScheme.primary,
                 decoration: InputDecoration(
                   labelText: "Contraseña",
-                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
+                  labelStyle: TextStyle(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.7)),
                   filled: true,
-                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  fillColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary, width: 2),
                   ),
                   contentPadding: const EdgeInsets.all(12),
                 ),

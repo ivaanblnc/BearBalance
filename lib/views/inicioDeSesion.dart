@@ -53,7 +53,7 @@ class _InicioSesionState extends State<InicioSesion> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFD6E2EA), 
+      backgroundColor: const Color(0xFFD6E2EA),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -62,7 +62,7 @@ class _InicioSesionState extends State<InicioSesion> {
               "BearBalance",
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.black, 
+                    color: Colors.black,
                   ),
               textAlign: TextAlign.center,
             ),
@@ -98,19 +98,27 @@ class _InicioSesionState extends State<InicioSesion> {
                     focusNode: _emailFocus,
                     controller: email_controlador,
                     keyboardType: TextInputType.emailAddress,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface),
                     decoration: InputDecoration(
                       labelText: "Correo electrónico",
-                      labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
+                      labelStyle: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.7)),
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      fillColor:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: BorderSide.none,
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                        borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -126,19 +134,27 @@ class _InicioSesionState extends State<InicioSesion> {
                     focusNode: _passwordFocus,
                     controller: contrasena_controlador,
                     obscureText: true,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface),
                     decoration: InputDecoration(
                       labelText: "Contraseña",
-                      labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
+                      labelStyle: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.7)),
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      fillColor:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: BorderSide.none,
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                        borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -151,9 +167,9 @@ class _InicioSesionState extends State<InicioSesion> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5975A8), 
-                        foregroundColor: Colors.white, 
-                        padding: const EdgeInsets.symmetric(vertical: 16), 
+                        backgroundColor: const Color(0xFF5975A8),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.0),
                         ),
@@ -182,7 +198,8 @@ class _InicioSesionState extends State<InicioSesion> {
                   const SizedBox(height: 15),
                   Text(
                     "o inicia sesion con:",
-                    style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface),
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -199,7 +216,7 @@ class _InicioSesionState extends State<InicioSesion> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: Colors.white, 
+                            color: Colors.white,
                             shape: BoxShape.circle,
                             image: const DecorationImage(
                               image: AssetImage('assets/logoGoogle.png'),
@@ -214,16 +231,16 @@ class _InicioSesionState extends State<InicioSesion> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const RegistroVista()),
+                        MaterialPageRoute(
+                            builder: (context) => const RegistroVista()),
                       );
                     },
                     child: Text(
                       "¿Aún no eres usuario? Regístrate aquí",
                       style: TextStyle(
-                        color: const Color(0xFF5975A8), 
-                        decoration: TextDecoration.underline,
-                        decorationColor: const Color(0xFF5975A8) 
-                      ),
+                          color: const Color(0xFF5975A8),
+                          decoration: TextDecoration.underline,
+                          decorationColor: const Color(0xFF5975A8)),
                     ),
                   ),
                 ],

@@ -21,7 +21,7 @@ class DetalleAhorroVista extends StatelessWidget {
     final positiveColor = Color(0xFF66BB6A);
     final negativeColor = Color(0xFFEF5350);
 
-    Widget _buildDetailRow(String label, String value,
+    Widget buildDetailRow(String label, String value,
         {Color? valueColor, FontWeight? valueWeight}) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -66,7 +66,7 @@ class DetalleAhorroVista extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                _buildDetailRow(
+                buildDetailRow(
                   'Tipo:',
                   ahorro['tipo'] == 'ingreso' ? 'Ingreso' : 'Gasto',
                   valueColor: ahorro['tipo'] == 'ingreso'
@@ -75,13 +75,13 @@ class DetalleAhorroVista extends StatelessWidget {
                   valueWeight: FontWeight.bold,
                 ),
                 Divider(color: colorScheme.outlineVariant.withOpacity(0.5)),
-                _buildDetailRow(
+                buildDetailRow(
                   'Fecha:',
                   formatoFecha.format(
                       DateTime.parse(ahorro['fecha_registro']).toLocal()),
                 ),
                 Divider(color: colorScheme.outlineVariant.withOpacity(0.5)),
-                _buildDetailRow(
+                buildDetailRow(
                   'Cantidad:',
                   formatoMoneda.format((ahorro['cantidad'] as num).toDouble()),
                   valueColor: ahorro['tipo'] == 'ingreso'
@@ -93,7 +93,7 @@ class DetalleAhorroVista extends StatelessWidget {
                     ahorro['categoria'] != null &&
                     ahorro['categoria'].isNotEmpty) ...[
                   Divider(color: colorScheme.outlineVariant.withOpacity(0.5)),
-                  _buildDetailRow(
+                  buildDetailRow(
                     'Categoría:',
                     ahorro['categoria'],
                   ),
