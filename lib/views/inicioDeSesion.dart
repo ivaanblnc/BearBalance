@@ -62,7 +62,7 @@ class _InicioSesionState extends State<InicioSesion> {
               "BearBalance",
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.black, 
+                    color: Theme.of(context).colorScheme.primary,
                   ),
               textAlign: TextAlign.center,
             ),
@@ -98,15 +98,19 @@ class _InicioSesionState extends State<InicioSesion> {
                     focusNode: _emailFocus,
                     controller: email_controlador,
                     keyboardType: TextInputType.emailAddress,
-                    style: const TextStyle(color: Colors.black),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                     decoration: InputDecoration(
                       labelText: "Correo electrónico",
-                      labelStyle: TextStyle(color: Colors.grey[700]),
+                      labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
                       filled: true,
-                      fillColor: Colors.grey[200],
+                      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -122,15 +126,19 @@ class _InicioSesionState extends State<InicioSesion> {
                     focusNode: _passwordFocus,
                     controller: contrasena_controlador,
                     obscureText: true,
-                    style: const TextStyle(color: Colors.black),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                     decoration: InputDecoration(
                       labelText: "Contraseña",
-                      labelStyle: TextStyle(color: Colors.grey[700]),
+                      labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
                       filled: true,
-                      fillColor: Colors.grey[200],
+                      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -143,8 +151,8 @@ class _InicioSesionState extends State<InicioSesion> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF007AFF), // Cupertino Blue
-                        foregroundColor: Colors.white,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 16), 
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.0),
@@ -172,9 +180,9 @@ class _InicioSesionState extends State<InicioSesion> {
                     ),
                   ),
                   const SizedBox(height: 15),
-                  const Text(
+                  Text(
                     "o inicia sesion con:",
-                    style: TextStyle(color: Colors.black),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                   ),
                   const SizedBox(height: 20),
                   Row(
