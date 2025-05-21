@@ -114,15 +114,6 @@ class PaginaInicioContenido extends StatelessWidget {
                 ),
               ),
               // SizedBox(height: MediaQuery.of(context).size.height * 0.02), // Consider removing or reducing for tighter layout
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(
-                  "Rendimiento:",
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant, // Softer color
-                      ),
-                ),
-              ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Reduced spacing
               Container( // Added container for chart constraints
                 height: MediaQuery.of(context).size.height * 0.3, // Example height constraint

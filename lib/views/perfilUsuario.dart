@@ -4,6 +4,7 @@ import 'package:tfg_ivandelllanoblanco/components/perfil_detalles.dart';
 import 'package:tfg_ivandelllanoblanco/components/perfil_imagenPerfil.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/perfilControlador.dart';
 import 'package:tfg_ivandelllanoblanco/views/configuracion.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 // Clase principal que representa la vista de perfil
 class PerfilVista extends StatefulWidget {
@@ -69,9 +70,12 @@ class _PerfilVistaState extends State<PerfilVista> {
           "Mi Perfil",
           style: TextStyle(color: colorScheme.onSurface), // Or let it default
         ),
+        backgroundColor: theme.colorScheme.surface, // Using a theme-consistent background
+        elevation: 1,
         actions: [
           IconButton(
-            icon: Icon(Icons.settings, color: colorScheme.primary), // Or let it default
+            icon: Icon(Icons.settings_outlined, color: theme.colorScheme.primary),
+            tooltip: 'Configuración',
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -81,13 +85,16 @@ class _PerfilVistaState extends State<PerfilVista> {
             },
           ),
         ],
-        backgroundColor: theme.scaffoldBackgroundColor,
-        elevation: 0,
       ),
       body: SafeArea(
         child: datosUsuario == null
             // Mostramos un indicador de carga si los datos del usuario aún no se han cargado
-            ? const Center(child: CircularProgressIndicator())
+            ? Center(
+                child: SpinKitFadingCube(
+                  color: theme.colorScheme.primary,
+                  size: 50.0,
+                ),
+              )
             : SingleChildScrollView(
                 child: Column(
                   children: [

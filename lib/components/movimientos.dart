@@ -34,7 +34,7 @@ class DetalleMovimientos extends StatelessWidget {
                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)
               ),
               IconButton(
-                icon: Icon(Icons.add_circle_outline, color: colorScheme.primary, size: 28),
+                icon: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary, size: 28),
                 tooltip: 'Añadir movimiento',
                 onPressed: () async {
                   final resultado = await Navigator.push(

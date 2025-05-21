@@ -1,68 +1,194 @@
 import 'package:flutter/material.dart';
 
-class SaldoResumen extends StatelessWidget {
+class SaldoResumen extends StatefulWidget {
   const SaldoResumen({
     super.key,
-    required this.saldoActual,
     required this.totalIngresos,
     required this.totalGastos,
+    this.ingresosMesActual,
+    this.gastosMesActual,
   });
 
-  final double saldoActual;
   final double totalIngresos;
   final double totalGastos;
+  final double? ingresosMesActual;
+  final double? gastosMesActual;
+
+  @override
+  State<SaldoResumen> createState() => _SaldoResumenState();
+}
+
+class _SaldoResumenState extends State<SaldoResumen> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController.addListener(() {
+      if (_pageController.page?.round() != _currentPage) {
+        setState(() {
+          _currentPage = _pageController.page!.round();
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
+    final bool hasMonthlyData = widget.ingresosMesActual != null && widget.gastosMesActual != null;
+
+    final positiveColor = Colors.greenAccent[400]!;
+    final negativeColor = Colors.redAccent[400]!;
+
+    List<Widget> pages = [];
+    if (hasMonthlyData) {
+      pages.add(_buildPageWithTitle(
+        context: context,
+        title: "Este mes:",
+        child: _buildSection(
+          context: context,
+          ingresos: widget.ingresosMesActual!,
+          gastos: widget.gastosMesActual!,
+          positiveColor: positiveColor,
+          negativeColor: negativeColor,
+        ),
+      ));
+    }
+    pages.add(_buildPageWithTitle(
+      context: context,
+      title: "Histórico:",
+      child: _buildSection(
+        context: context,
+        ingresos: widget.totalIngresos,
+        gastos: widget.totalGastos,
+        positiveColor: positiveColor,
+        negativeColor: negativeColor,
+      ),
+    ));
+
+    if (_currentPage == 0 && !hasMonthlyData && pages.length == 1) {
+    } else if (_currentPage >= pages.length) {
+      _currentPage = pages.length -1; 
+    }
 
     return Card(
       elevation: 0,
-      // shape: RoundedRectangleBorder(
-      //   borderRadius: BorderRadius.circular(12.0),
-      //   side: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
-      // ),
-      margin: EdgeInsets.zero, // Para que el Card se ajuste al espacio del Expanded en AhorrosVista
+      margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center, // Centrar verticalmente si es posible
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text(
-              "Saldo total:",
-              style: textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
-            Text(
-              "${saldoActual.toStringAsFixed(2)} €",
-              style: textTheme.headlineSmall?.copyWith(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.bold,
+            Expanded( 
+              child: PageView(
+                controller: _pageController,
+                children: pages,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              "Ingresos:",
-              style: textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
-            Text(
-              "${totalIngresos.toStringAsFixed(2)} €",
-              style: textTheme.titleMedium?.copyWith(color: Colors.green[700]),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              "Gastos:",
-              style: textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
-            Text(
-              "${totalGastos.toStringAsFixed(2)} €",
-              style: textTheme.titleMedium?.copyWith(color: Colors.red[700]),
-            ),
+
+            if (pages.length > 1) ...[
+              const SizedBox(height: 2),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(pages.length, (index) {
+                  return Container(
+                    width: 7.0,
+                    height: 7.0,
+                    margin: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 2.0),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _currentPage == index
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.primary.withOpacity(0.4),
+                    ),
+                  );
+                }),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
-  // _buildSaldoText ya no es necesario, se integra la lógica en build.
+
+  Widget _buildPageWithTitle({
+    required BuildContext context,
+    required String title,
+    required Widget child,
+  }) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Expanded(child: child),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSection({
+    required BuildContext context,
+    required double ingresos,
+    required double gastos,
+    required Color positiveColor, 
+    required Color negativeColor,
+  }) {
+    final theme = Theme.of(context);
+
+    return Padding( 
+      padding: const EdgeInsets.symmetric(vertical: 0.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, 
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Ingresos:",
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+              Text(
+                "${ingresos.toStringAsFixed(2)} €",
+                style: theme.textTheme.bodyLarge?.copyWith(color: positiveColor, fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Gastos:",
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+              Text(
+                "${gastos.toStringAsFixed(2)} €",
+                style: theme.textTheme.bodyLarge?.copyWith(color: negativeColor, fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }

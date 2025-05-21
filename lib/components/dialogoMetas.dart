@@ -239,8 +239,8 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
           onPressed: _guardarMeta,
           child: const Text('Guardar'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: CupertinoColors.activeBlue,
-            foregroundColor: CupertinoColors.white,
+            backgroundColor: theme.colorScheme.primary, // Use theme primary color
+            foregroundColor: theme.colorScheme.onPrimary, // Use theme onPrimary color
           ),
         ),
       ],

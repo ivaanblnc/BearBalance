@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tfg_ivandelllanoblanco/views/ahorros.dart'; 
 import 'package:tfg_ivandelllanoblanco/views/metas.dart';   
 import 'package:tfg_ivandelllanoblanco/views/perfilUsuario.dart'; 
+import 'package:flutter_spinkit/flutter_spinkit.dart'; // Import flutter_spinkit
 
 class PaginaInicioVista extends StatefulWidget {
   final String nombreUsuario;
@@ -61,7 +62,12 @@ class _PaginaInicioVistaState extends State<PaginaInicioVista> {
         future: _cargarDatos(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: SpinKitFadingCube(
+                color: Theme.of(context).colorScheme.primary,
+                size: 50.0,
+              ),
+            );
           }
           if (snapshot.hasError) {
             return Center(child: Text('Error al cargar datos: ${snapshot.error}'));
@@ -139,7 +145,7 @@ class _PaginaInicioVistaState extends State<PaginaInicioVista> {
           BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Perfil'),
         ],
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: CupertinoColors.activeBlue,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: CupertinoColors.inactiveGray,
         backgroundColor: Colors.transparent, // El Container ya le da color de fondo
         elevation: 0, // El Container maneja la sombra

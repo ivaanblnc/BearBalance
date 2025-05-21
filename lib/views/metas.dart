@@ -86,13 +86,13 @@ class MetasViewState extends State<MetasVista> {
                           const SizedBox(height: 16),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: CupertinoColors.activeBlue,
-                              foregroundColor: CupertinoColors.white,
+                              backgroundColor: theme.colorScheme.primary, // Ensure theme's primary color
+                              foregroundColor: theme.colorScheme.onPrimary, // Ensure good contrast
                               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                               textStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
                             ),
+                            onPressed: () => controlador.lanzarNavegador(), // Added missing onPressed
                             child: const Text("Explorar Ahora"),
-                            onPressed: () => controlador.lanzarNavegador(),
                           ),
                         ],
                       ),
@@ -105,8 +105,8 @@ class MetasViewState extends State<MetasVista> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => mostrarDialogoCrearModificarMeta(context),
-        backgroundColor: CupertinoColors.activeBlue,
-        foregroundColor: CupertinoColors.white,
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
         child: const Icon(Icons.add),
       ),
     );

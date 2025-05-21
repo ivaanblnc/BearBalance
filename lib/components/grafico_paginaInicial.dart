@@ -13,9 +13,29 @@ class GraficoAhorros extends StatelessWidget {
     final bool esModoOscuro = Theme.of(context).brightness == Brightness.dark;
     final Color colorTexto = esModoOscuro ? Colors.white70 : Colors.black54;
     final Color colorFondo = esModoOscuro ? Colors.grey[900]! : Colors.grey[50]!;
-    final Color colorIngresos = Colors.cyanAccent;
-    final Color colorGastos = Colors.orangeAccent;
-    final Color colorSaldo = Colors.purpleAccent;
+
+    if (ahorrosList.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: colorFondo,
+        ),
+        child: Center(
+          child: Text(
+            'No hay datos para mostrar.',
+            style: TextStyle(color: colorTexto, fontSize: 16, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    final theme = Theme.of(context); // Get theme for colors
+
+    final Color colorIngresos = theme.colorScheme.primary; // Changed to theme's primary color
+    final Color colorGastos = Colors.orangeAccent; // Keeping as is for now
+    final Color colorSaldo = Colors.purpleAccent;   // Keeping as is for now
 
     // Procesar datos por trimestre
     final quarterData = <DateTime, Map<String, double>>{};
@@ -219,9 +239,10 @@ class GraficoAhorros extends StatelessWidget {
                   enabled: true,
                   touchTooltipData: LineTouchTooltipData(
                     getTooltipColor: (_) => esModoOscuro 
-                        ? Colors.grey[800]!.withOpacity(0.95)
-                        : Colors.white.withOpacity(0.95),
+                        ? Colors.black.withOpacity(0.8) 
+                        : Colors.white.withOpacity(0.9),
                     tooltipRoundedRadius: 8,
+                    tooltipMargin: 16, // Empuja el tooltip hacia abajo (como double)
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((barSpot) {
                         final date = DateTime.fromMillisecondsSinceEpoch(barSpot.x.toInt());
@@ -279,15 +300,15 @@ class GraficoAhorros extends StatelessWidget {
 
   double _calcularIntervaloTrimestral(List<DateTime> quarters) {
     if (quarters.length <= 1) return 1;
-    return (quarters.last.millisecondsSinceEpoch - 
-           quarters.first.millisecondsSinceEpoch) / 
-           (quarters.length - 1);
+    // Devuelve la diferencia en milisegundos para un trimestre (aproximado)
+    // Esto asegura que se muestren etiquetas para cada trimestre si hay espacio
+    return quarters.length > 1 ? (quarters[1].millisecondsSinceEpoch - quarters[0].millisecondsSinceEpoch).toDouble() : const Duration(days: 90).inMilliseconds.toDouble();
   }
 
-  String _formatearValor(double value) {
-    if (value >= 1000000) return '${(value/1000000).toStringAsFixed(1)}M';
-    if (value >= 1000) return '${(value/1000).toStringAsFixed(1)}K';
-    return value.toInt().toString();
+  String _formatearValor(double valor) {
+    if (valor >= 1000000) return '${(valor/1000000).toStringAsFixed(1)}M';
+    if (valor >= 1000) return '${(valor/1000).toStringAsFixed(1)}K';
+    return valor.toInt().toString();
   }
 }
 

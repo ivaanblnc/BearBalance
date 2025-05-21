@@ -47,6 +47,7 @@ class ListaMetas extends StatelessWidget {
 
   Widget _crearItemMeta(BuildContext context, Informacionmetas? meta) {
     final theme = Theme.of(context);
+    final themePrimaryColor = theme.colorScheme.primary; // Defined for clarity
 
     double progreso = 0.0;
     if (meta != null && meta.cantidadObjetivo > 0) {
@@ -80,7 +81,7 @@ class ListaMetas extends StatelessWidget {
                 value: progreso,
                 minHeight: 8, // Altura de barra reducida
                 backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.5),
-                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary), // Color Cupertino Azul
+                valueColor: AlwaysStoppedAnimation<Color>(themePrimaryColor), // Changed to themePrimaryColor
               ),
             ),
             const SizedBox(height: 8.0), // SizedBox reducido
@@ -100,7 +101,7 @@ class ListaMetas extends StatelessWidget {
                   '$porcentajeStr%',
                   style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary, // Color Cupertino Azul para el porcentaje también
+                    color: themePrimaryColor, // Changed to themePrimaryColor
                   ),
                 ),
               ],

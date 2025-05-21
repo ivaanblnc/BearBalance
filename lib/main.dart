@@ -6,6 +6,7 @@ import 'package:tfg_ivandelllanoblanco/controllers/cambiarTema.dart';
 import 'package:provider/provider.dart';
 import 'package:tfg_ivandelllanoblanco/views/paginaInicio.dart';
 import 'package:intl/date_symbol_data_local.dart'; // Importación añadida
+import 'package:flutter_spinkit/flutter_spinkit.dart'; // Import flutter_spinkit
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -71,9 +72,14 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     if (_cargando) {
-      return const MaterialApp(
+      return MaterialApp(
         home: Scaffold(
-          body: Center(child: CircularProgressIndicator()),
+          body: Center(
+            child: SpinKitFadingCube(
+              color: Theme.of(context).colorScheme.primary,
+              size: 50.0,
+            ),
+          ),
         ),
         debugShowCheckedModeBanner: false,
       );

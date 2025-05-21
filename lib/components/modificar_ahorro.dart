@@ -57,7 +57,7 @@ class FormularioMovimientoDialogo {
                         onChanged: (valor) => categoriaActual = valor,
                         controller: TextEditingController(text: categoriaActual),
                       ),
-                    if (tipoMovimiento == 'gasto') const SizedBox(height: 16),
+                    if (tipoMovimiento == 'gasto') SizedBox(height: 16),
                     TextField(
                         decoration: modernInputDecoration.copyWith(labelText: 'Cantidad'),
                         keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: false),
@@ -83,12 +83,12 @@ class FormularioMovimientoDialogo {
                                     style: TextStyle(color: theme.colorScheme.error, fontSize: 12),
                                   ),
                                 )
-                              : const SizedBox.shrink();
+                              : SizedBox.shrink();
                         },
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       SegmentedButton<String>(
-                        segments: const <ButtonSegment<String>>[
+                        segments: <ButtonSegment<String>>[
                           ButtonSegment<String>(
                               value: 'ingreso',
                               label: Text('Ingreso'),
@@ -110,14 +110,14 @@ class FormularioMovimientoDialogo {
                         },
                         style: SegmentedButton.styleFrom(
                           backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                          selectedForegroundColor: theme.colorScheme.onPrimary,
-                          selectedBackgroundColor: theme.colorScheme.primary,
+                          selectedForegroundColor: theme.colorScheme.onPrimary, // Changed to onPrimary
+                          selectedBackgroundColor: theme.colorScheme.primary, // Changed to primary
                           side: BorderSide.none,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
                         ),
                         showSelectedIcon: false,
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                       // Estilizando el selector de fecha
                       InkWell(
                         onTap: () async {
@@ -144,7 +144,7 @@ class FormularioMovimientoDialogo {
                                 _fechaLimiteTexto(fechaRegistro), // Usamos la función para formatear
                                 style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.9)),
                               ),
-                              Icon(Icons.calendar_today, color: theme.colorScheme.primary, size: 20),
+                              Icon(Icons.calendar_today, color: theme.colorScheme.primary, size: 20), // Removed const
                             ],
                           ),
                         ),
@@ -154,10 +154,11 @@ class FormularioMovimientoDialogo {
                 ),
               actions: [
                 TextButton(
-                  child: const Text('Cancelar'),
+                  child: Text('Cancelar', style: TextStyle(color: theme.colorScheme.primary)), // Removed const
                   onPressed: () => Navigator.pop(contextoDialogo),
                 ),
                 ElevatedButton( // Usar ElevatedButton para la acción principal
+                  style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary, foregroundColor: theme.colorScheme.onPrimary), 
                   child: Text(ahorro == null
                       ? 'Agregar'
                       : 'Actualizar'),
@@ -210,26 +211,27 @@ class FormularioMovimientoDialogo {
     BuildContext context,
     DateTime fechaInicial,
   ) async {
-    final DateTime? fechaSeleccionada = await showDatePicker(
+    final theme = Theme.of(context);
+    return await showDatePicker(
       context: context,
       initialDate: fechaInicial,
-      firstDate: DateTime(2000), // Rango de fechas seleccionables
+      firstDate: DateTime(2000),
       lastDate: DateTime(2101),
       helpText: 'SELECCIONAR FECHA',
       cancelText: 'CANCELAR',
       confirmText: 'ACEPTAR',
       builder: (context, child) {
-        // Opcional: Aplicar tema al DatePicker
-        final theme = Theme.of(context);
         return Theme(
           data: theme.copyWith(
             colorScheme: theme.colorScheme.copyWith(
-              primary: theme.colorScheme.primary, // Color del header y día seleccionado
-              onPrimary: theme.colorScheme.onPrimary, // Color del texto en el header
+              primary: theme.colorScheme.primary, // DatePicker primary color
+              onPrimary: theme.colorScheme.onPrimary, // Text on DatePicker primary color
+              surface: theme.colorScheme.surface, // Background of DatePicker
+              onSurface: theme.colorScheme.onSurface, // Text on DatePicker background
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: theme.colorScheme.primary, // Color de los botones de acción
+                foregroundColor: theme.colorScheme.primary, // Buttons in DatePicker
               ),
             ),
           ),
@@ -237,6 +239,5 @@ class FormularioMovimientoDialogo {
         );
       },
     );
-    return fechaSeleccionada;
   } // Cierre del método _mostrarSelectorFechaMaterial
 } // Cierre de la CLASE FormularioMovimientoDialogo

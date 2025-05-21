@@ -18,8 +18,7 @@ dependencies:
   shared_preferences: ^2.5.3
   provider: ^6.1.4
   fl_chart: ^0.71.0
-
-
+  flutter_spinkit: ^5.2.1
 
 dev_dependencies:
   flutter_test:

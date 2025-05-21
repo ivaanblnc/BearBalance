@@ -74,8 +74,8 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
                   },
                   style: SegmentedButton.styleFrom(
                     backgroundColor: theme.colorScheme.surfaceContainer,
-                    selectedForegroundColor: theme.colorScheme.onPrimary,
-                    selectedBackgroundColor: theme.colorScheme.primary,
+                    selectedForegroundColor: theme.colorScheme.onPrimary, // Ensure contrast
+                    selectedBackgroundColor: theme.colorScheme.primary, // Changed to primary
                     // visualDensity: VisualDensity.compact, // Para hacerlo un poco más pequeño
                   ),
                 ),
@@ -126,10 +126,10 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
                   ),
                 if (_tipo == 'gasto') const SizedBox(height: 16),
                 TextButton.icon(
-                  icon: Icon(Icons.calendar_today, color: theme.colorScheme.primary),
+                  icon: Icon(Icons.calendar_today, color: theme.colorScheme.primary), // Changed to primary
                   label: Text(
                     'Fecha: ${DateFormat('dd/MM/yyyy').format(_fechaRegistro.toLocal())}',
-                    style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.w500),
+                    style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.w500), // Changed to primary
                   ),
                   onPressed: () async {
                     final DateTime? picked = await showDatePicker(
@@ -144,12 +144,12 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
                         return Theme(
                           data: theme.copyWith(
                             colorScheme: theme.colorScheme.copyWith(
-                              primary: theme.colorScheme.primary,
-                              onPrimary: theme.colorScheme.onPrimary,
+                              primary: theme.colorScheme.primary, // Changed to primary for DatePicker
+                              onPrimary: theme.colorScheme.onPrimary, // Ensure good contrast for text on primary
                             ),
                             textButtonTheme: TextButtonThemeData(
                               style: TextButton.styleFrom(
-                                foregroundColor: theme.colorScheme.primary,
+                                foregroundColor: theme.colorScheme.primary, // Changed to primary for DatePicker buttons
                               ),
                             ),
                           ),
@@ -168,8 +168,10 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
                 const SizedBox(height: 24),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary, // Changed to primary
+                    foregroundColor: theme.colorScheme.onPrimary, // Ensure text is visible
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    textStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    textStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onPrimary), // Ensure text is visible
                   ),
                   child: const Text('Guardar'),
                   onPressed: () async {

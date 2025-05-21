@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class PerfilImagen extends StatelessWidget {
   final String? imageUrl;
@@ -45,12 +46,9 @@ class PerfilImagen extends StatelessWidget {
                       height: size,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Center(
-                        child: SizedBox(
-                          width: size / 2, // Adjust size as needed
-                          height: size / 2, // Adjust size as needed
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.0, // Optional: adjust stroke width
-                          ),
+                        child: SpinKitFadingCube(
+                          color: Theme.of(context).colorScheme.primary,
+                          size: size / 2, // Adjust size as needed
                         ),
                       ),
                       errorWidget: (context, url, error) => Image.asset(
@@ -69,11 +67,14 @@ class PerfilImagen extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.primary,
+          ),
           onPressed: () =>
               kIsWeb ? _showWebMessage(context) : onImageUpload(context),
           child: const Text(
             "Actualizar Foto de Perfil",
-            style: TextStyle(fontSize: 16), // Consider using Theme.of(context).textTheme styles
+            style: TextStyle(fontSize: 16),
           ),
         ),
       ],
