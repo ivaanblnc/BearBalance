@@ -34,18 +34,24 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
     _esUsuarioGoogle = _inicioSesionModelo.esUsuarioGoogle();
 
     _controllers = {
-      'nombre': TextEditingController(text: widget.datosUsuario['nombre'] ?? ''),
+      'nombre':
+          TextEditingController(text: widget.datosUsuario['nombre'] ?? ''),
       'apellidos':
           TextEditingController(text: widget.datosUsuario['apellidos'] ?? ''),
       'nombre_usuario': TextEditingController(
           text: widget.datosUsuario['nombre_usuario'] ?? ''),
-      'email': TextEditingController(text: Supabase.instance.client.auth.currentUser?.email ?? widget.datosUsuario['email'] ?? widget.datosUsuario['correo_electronico'] ?? ''),
+      'email': TextEditingController(
+          text: Supabase.instance.client.auth.currentUser?.email ??
+              widget.datosUsuario['email'] ??
+              widget.datosUsuario['correo_electronico'] ??
+              ''),
       'contrasena': TextEditingController(),
     };
     _errores = {};
   }
 
-  void _mostrarMensaje(BuildContext scaffoldContext, String mensaje, {bool esError = false}) {
+  void _mostrarMensaje(BuildContext scaffoldContext, String mensaje,
+      {bool esError = false}) {
     showDialog(
       context: scaffoldContext,
       builder: (BuildContext dialogContext) {
@@ -72,13 +78,16 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
   }
 
   Future<String?> _validarCampo(String nombreCampo, String valor) async {
-    if (nombreCampo == 'nombre' || nombreCampo == 'apellidos' || nombreCampo == 'nombre_usuario') {
+    if (nombreCampo == 'nombre' ||
+        nombreCampo == 'apellidos' ||
+        nombreCampo == 'nombre_usuario') {
       if (valor.isEmpty) return 'Este campo no puede estar vacío.';
       if (valor.length < 3) return 'Debe tener al menos 3 caracteres.';
     }
     if (nombreCampo == 'email') {
       if (valor.isEmpty) return 'El correo no puede estar vacío.';
-      final emailRegex = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+      final emailRegex = RegExp(
+          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
       if (!emailRegex.hasMatch(valor)) return 'Formato de correo inválido.';
     }
     if (nombreCampo == 'contrasena' && !_esUsuarioGoogle) {
@@ -98,7 +107,9 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
     TextEditingController valorController,
     CambiarTema proveedorTema,
   ) {
-    final bool esCampoSensibleGoogle = (nombreCampo == 'email' || nombreCampo == 'contrasena') && _esUsuarioGoogle;
+    final bool esCampoSensibleGoogle =
+        (nombreCampo == 'email' || nombreCampo == 'contrasena') &&
+            _esUsuarioGoogle;
 
     return ListTile(
       title: Text(
@@ -106,7 +117,13 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
         style: TextStyle(fontWeight: FontWeight.w500),
       ),
       subtitle: Text(
-        nombreCampo == 'contrasena' && !_esUsuarioGoogle && valorController.text.isNotEmpty ? '********' : (nombreCampo == 'contrasena' && _esUsuarioGoogle ? 'Vinculado con Google' : valorController.text),
+        nombreCampo == 'contrasena' &&
+                !_esUsuarioGoogle &&
+                valorController.text.isNotEmpty
+            ? '********'
+            : (nombreCampo == 'contrasena' && _esUsuarioGoogle
+                ? 'Vinculado con Google'
+                : valorController.text),
       ),
       trailing: esCampoSensibleGoogle
           ? Icon(Icons.lock, color: Theme.of(context).disabledColor)
@@ -114,13 +131,17 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
       onTap: esCampoSensibleGoogle
           ? null
           : () {
-              _errores[nombreCampo] = null; // Limpiar errores previos
+              _errores[nombreCampo] = null;
               showDialog(
                 context: context,
                 builder: (BuildContext contextoDialogoInterno) {
-                  final controladorDialog = TextEditingController(text: nombreCampo == 'contrasena' ? '' : valorController.text);
+                  final controladorDialog = TextEditingController(
+                      text: nombreCampo == 'contrasena'
+                          ? ''
+                          : valorController.text);
                   return StatefulBuilder(
-                    builder: (BuildContext context, StateSetter setStateDialog) {
+                    builder:
+                        (BuildContext context, StateSetter setStateDialog) {
                       return AlertDialog(
                         title: Text('Editar $etiqueta'),
                         content: Column(
@@ -135,14 +156,17 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
                               obscureText: nombreCampo == 'contrasena',
                               autocorrect: nombreCampo != 'contrasena',
                               enableSuggestions: nombreCampo != 'contrasena',
-                              keyboardType: nombreCampo == 'email' ? TextInputType.emailAddress : TextInputType.text,
+                              keyboardType: nombreCampo == 'email'
+                                  ? TextInputType.emailAddress
+                                  : TextInputType.text,
                             ),
                           ],
                         ),
                         actions: <Widget>[
                           TextButton(
                             child: const Text('Cancelar'),
-                            onPressed: () => Navigator.pop(contextoDialogoInterno),
+                            onPressed: () =>
+                                Navigator.pop(contextoDialogoInterno),
                           ),
                           TextButton(
                             child: const Text('Guardar'),
@@ -151,40 +175,61 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
                               String? errorMsg;
                               bool opSuccess = false;
 
-                              final validationError = await _validarCampo(nombreCampo, nuevoValor);
+                              final validationError =
+                                  await _validarCampo(nombreCampo, nuevoValor);
                               if (validationError != null) {
                                 errorMsg = validationError;
                               } else {
                                 try {
                                   if (nombreCampo == 'email') {
-                                    await _inicioSesionModelo.cambiarEmail(nuevoValor);
-                                    if (mounted) setState(() { valorController.text = nuevoValor; });
+                                    await _inicioSesionModelo
+                                        .cambiarEmail(nuevoValor);
+                                    if (mounted)
+                                      setState(() {
+                                        valorController.text = nuevoValor;
+                                      });
                                     opSuccess = true;
                                   } else if (nombreCampo == 'contrasena') {
-                                    await _inicioSesionModelo.cambiarContrasena(nuevoValor);
-                                    if (mounted) setState(() { valorController.clear(); });
+                                    await _inicioSesionModelo
+                                        .cambiarContrasena(nuevoValor);
+                                    if (mounted)
+                                      setState(() {
+                                        valorController.clear();
+                                      });
                                     opSuccess = true;
                                   } else {
-                                    await widget.onCampoActualizado(nombreCampo, nuevoValor);
-                                    if (mounted) setState(() { valorController.text = nuevoValor; });
+                                    await widget.onCampoActualizado(
+                                        nombreCampo, nuevoValor);
+                                    if (mounted)
+                                      setState(() {
+                                        valorController.text = nuevoValor;
+                                      });
                                     opSuccess = true;
                                   }
                                 } catch (e) {
-                                  errorMsg = e.toString().replaceFirst("Exception: ", "");
+                                  errorMsg = e
+                                      .toString()
+                                      .replaceFirst("Exception: ", "");
                                 }
                               }
 
                               if (opSuccess) {
                                 Navigator.pop(contextoDialogoInterno);
-                                String successMessage = "$etiqueta actualizado correctamente.";
+                                String successMessage =
+                                    "$etiqueta actualizado correctamente.";
                                 if (nombreCampo == 'email') {
-                                  successMessage = "Solicitud de cambio de correo procesada. Revisa tu bandeja de entrada.";
+                                  successMessage =
+                                      "Solicitud de cambio de correo procesada. Revisa tu bandeja de entrada.";
                                 } else if (nombreCampo == 'contrasena') {
-                                  successMessage = "Contraseña actualizada correctamente.";
+                                  successMessage =
+                                      "Contraseña actualizada correctamente.";
                                 }
-                                _mostrarMensaje(widget.contexto, successMessage);
+                                _mostrarMensaje(
+                                    widget.contexto, successMessage);
                               } else if (errorMsg != null) {
-                                setStateDialog(() { _errores[nombreCampo] = errorMsg; });
+                                setStateDialog(() {
+                                  _errores[nombreCampo] = errorMsg;
+                                });
                               }
                             },
                           ),
@@ -219,12 +264,17 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
                   ),
             ),
           ),
-          _buildEditableField('Nombre', 'nombre', _controllers['nombre']!, proveedorTema),
-          _buildEditableField('Apellidos', 'apellidos', _controllers['apellidos']!, proveedorTema),
-          _buildEditableField('Nombre de usuario', 'nombre_usuario', _controllers['nombre_usuario']!, proveedorTema),
-          _buildEditableField('Email', 'email', _controllers['email']!, proveedorTema),
+          _buildEditableField(
+              'Nombre', 'nombre', _controllers['nombre']!, proveedorTema),
+          _buildEditableField('Apellidos', 'apellidos',
+              _controllers['apellidos']!, proveedorTema),
+          _buildEditableField('Nombre de usuario', 'nombre_usuario',
+              _controllers['nombre_usuario']!, proveedorTema),
+          _buildEditableField(
+              'Email', 'email', _controllers['email']!, proveedorTema),
           if (!_esUsuarioGoogle) // Only show password field if not a Google user
-             _buildEditableField('Contraseña', 'contrasena', _controllers['contrasena']!, proveedorTema),
+            _buildEditableField('Contraseña', 'contrasena',
+                _controllers['contrasena']!, proveedorTema),
         ],
       ),
     );

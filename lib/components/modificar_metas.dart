@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import '../views/metas.dart';
 import '../controllers/metascontrollador.dart';
 
-class CupertinoMetaDialog {
-  static void mostrarCupertinoDialog(
+class ModificarMetasDialog {
+  static void mostrarDialogo(
     BuildContext context,
     MetasViewState metasView,
     MetasControlador controller,
@@ -16,81 +16,80 @@ class CupertinoMetaDialog {
     DateTime fechaMeta =
         meta != null ? DateTime.parse(meta['fecha_limite']) : DateTime.now();
 
-    showCupertinoDialog(
+    showDialog(
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            return CupertinoAlertDialog(
+            return AlertDialog(
               title: Text(meta == null ? 'Nueva Meta' : 'Actualizar Meta'),
-              content: Column(
-                children: [
-                  CupertinoTextField(
-                    placeholder: 'Nombre de la Meta',
-                    onChanged: (valor) => nombreMeta = valor,
-                    controller: TextEditingController(text: nombreMeta),
-                  ),
-                  SizedBox(height: 10),
-                  CupertinoTextField(
-                    placeholder: 'Cantidad Ahorrada',
-                    keyboardType: TextInputType.number,
-                    onChanged: (valor) =>
-                        cantidadAhorrada = double.tryParse(valor) ?? 0.0,
-                    controller: TextEditingController(
-                        text: cantidadAhorrada.toString()),
-                  ),
-                  SizedBox(height: 10),
-                  CupertinoTextField(
-                    placeholder: 'Cantidad Objetivo',
-                    keyboardType: TextInputType.number,
-                    onChanged: (valor) =>
-                        cantidadObjetivo = double.tryParse(valor) ?? 0.0,
-                    controller: TextEditingController(
-                        text: cantidadObjetivo.toString()),
-                  ),
-                  SizedBox(height: 10),
-                  CupertinoButton(
-                    child: Text(
-                        'Seleccionar Fecha: ${fechaMeta.toLocal().day}/${fechaMeta.toLocal().month}/${fechaMeta.toLocal().year}'),
-                    onPressed: () {
-                      showCupertinoModalPopup(
-                        context: context,
-                        builder: (BuildContext builder) {
-                          final brightness =
-                              CupertinoTheme.of(context).brightness;
-
-                          return CupertinoTheme(
-                            data: CupertinoThemeData(
-                              brightness: brightness,
-                            ),
-                            child: Container(
-                              height: MediaQuery.of(context).size.height * 0.25,
-                              color: CupertinoColors.systemBackground
-                                  .resolveFrom(context),
-                              child: CupertinoDatePicker(
-                                mode: CupertinoDatePickerMode.date,
-                                initialDateTime: fechaMeta,
-                                onDateTimeChanged: (DateTime newDate) {
-                                  setState(() {
-                                    fechaMeta = newDate;
-                                  });
-                                },
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      decoration:
+                          InputDecoration(labelText: 'Nombre de la Meta'),
+                      onChanged: (valor) => nombreMeta = valor,
+                      controller: TextEditingController(text: nombreMeta),
+                    ),
+                    SizedBox(height: 10),
+                    TextField(
+                      decoration:
+                          InputDecoration(labelText: 'Cantidad Ahorrada'),
+                      keyboardType: TextInputType.number,
+                      onChanged: (valor) =>
+                          cantidadAhorrada = double.tryParse(valor) ?? 0.0,
+                      controller: TextEditingController(
+                          text: cantidadAhorrada.toStringAsFixed(2)),
+                    ),
+                    SizedBox(height: 10),
+                    TextField(
+                      decoration:
+                          InputDecoration(labelText: 'Cantidad Objetivo'),
+                      keyboardType: TextInputType.number,
+                      onChanged: (valor) =>
+                          cantidadObjetivo = double.tryParse(valor) ?? 0.0,
+                      controller: TextEditingController(
+                          text: cantidadObjetivo.toStringAsFixed(2)),
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                              'Fecha Límite: ${fechaMeta.day}/${fechaMeta.month}/${fechaMeta.year}'),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.calendar_today),
+                          onPressed: () async {
+                            final DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: fechaMeta,
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime(2101),
+                            );
+                            if (picked != null && picked != fechaMeta) {
+                              setState(() {
+                                fechaMeta = picked;
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               actions: [
-                CupertinoDialogAction(
-                  child: const Text('Cancelar'),
-                  onPressed: () => Navigator.pop(context),
+                TextButton(
+                  child: Text('Cancelar'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                 ),
-                CupertinoDialogAction(
-                  child: Text(meta == null ? 'Agregar' : 'Actualizar'),
+                TextButton(
+                  child: Text(meta == null ? 'Crear' : 'Actualizar'),
                   onPressed: () {
                     if (nombreMeta.isNotEmpty && cantidadObjetivo > 0) {
                       if (meta == null) {
@@ -113,7 +112,7 @@ class CupertinoMetaDialog {
                       }
                       cargarMetas();
                     }
-                    Navigator.pop(context);
+                    Navigator.of(context).pop();
                   },
                 ),
               ],

@@ -6,7 +6,7 @@ import 'package:tfg_ivandelllanoblanco/components/movimientos.dart';
 import 'package:tfg_ivandelllanoblanco/components/resumen_saldo.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-// Pantalla principal donde se muestra el rendimiento económico (Material Design)
+// Pantalla principal donde se muestra el rendimiento económico
 class AhorrosVista extends StatefulWidget {
   const AhorrosVista({super.key});
 
@@ -23,7 +23,7 @@ class AhorrosVistaState extends State<AhorrosVista> {
 
   // Variable para mostrar spinner de carga
   bool carga = false;
-  DateTime? _fechaFiltroActivo; // Para rastrear la fecha del filtro activo
+  DateTime? _fechaFiltroActivo;
 
   // Carga inicial de los datos al iniciar la vista
   @override
@@ -39,7 +39,7 @@ class AhorrosVistaState extends State<AhorrosVista> {
       carga = true;
     });
     try {
-      await _cargarAhorros(); // Carga todos los movimientos
+      await _cargarAhorros();
     } catch (e) {
       print('Error al limpiar filtro: $e');
       if (mounted) {
@@ -93,16 +93,14 @@ class AhorrosVistaState extends State<AhorrosVista> {
     for (var mov in listaAhorros) {
       DateTime fechaMovimiento;
       try {
-        // Assuming fecha_registro from Supabase is a String in ISO 8601 format
         if (mov['fecha_registro'] is String) {
           fechaMovimiento = DateTime.parse(mov['fecha_registro'] as String);
         } else {
-          // If fecha_registro is not a String, log or skip
-          // print('Fecha_registro no es String: ${mov['fecha_registro']}');
           continue;
         }
 
-        if (fechaMovimiento.year == ahora.year && fechaMovimiento.month == ahora.month) {
+        if (fechaMovimiento.year == ahora.year &&
+            fechaMovimiento.month == ahora.month) {
           if (mov['tipo'] == 'ingreso') {
             ingresosMesActual += (mov['cantidad'] as num).toDouble();
           } else if (mov['tipo'] == 'gasto') {
@@ -110,9 +108,7 @@ class AhorrosVistaState extends State<AhorrosVista> {
           }
         }
       } catch (e) {
-        // Manejar el error de parseo, por ejemplo, imprimir un mensaje.
-        // print('Error parseando fecha para cálculo mensual: ${mov['fecha_registro']} - $e');
-        continue; // Saltar este movimiento si la fecha no se puede parsear
+        continue;
       }
     }
 
@@ -120,9 +116,7 @@ class AhorrosVistaState extends State<AhorrosVista> {
       appBar: AppBar(
         title: Text(
           "Rendimiento Económico",
-          style: TextStyle(
-              color: theme
-                  .colorScheme.onSurface), // Adjusted for transparent AppBar
+          style: TextStyle(color: theme.colorScheme.onSurface),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0.0,
@@ -142,8 +136,7 @@ class AhorrosVistaState extends State<AhorrosVista> {
               );
               if (!mounted) return;
               setState(() {
-                _fechaFiltroActivo =
-                    fechaSeleccionada; // Actualizar fecha de filtro activa
+                _fechaFiltroActivo = fechaSeleccionada;
                 carga = true;
               });
               try {
@@ -151,7 +144,6 @@ class AhorrosVistaState extends State<AhorrosVista> {
                   listaAhorros =
                       await controlador.filtrarMovimientos(_fechaFiltroActivo!);
                 } else {
-                  // Si fechaSeleccionada es null (cancelado), cargamos todos los ahorros (limpia el filtro)
                   await _cargarAhorros();
                 }
               } catch (e) {
@@ -161,7 +153,6 @@ class AhorrosVistaState extends State<AhorrosVista> {
                     SnackBar(
                         content: Text('Error al filtrar: ${e.toString()}')),
                   );
-                  // Si hay error, asegurar que se cargan todos los datos y se limpia el filtro visual
                   await _limpiarFiltro();
                 }
               } finally {
@@ -178,8 +169,7 @@ class AhorrosVistaState extends State<AhorrosVista> {
               icon: Icon(Icons.filter_alt_off_outlined,
                   color: _fechaFiltroActivo != null
                       ? theme.colorScheme.primary
-                      : theme.colorScheme
-                          .onSurface), // Color diferente si está activo y se puede limpiar
+                      : theme.colorScheme.onSurface),
               tooltip: 'Limpiar filtro',
               onPressed: _limpiarFiltro,
             ),
@@ -192,51 +182,60 @@ class AhorrosVistaState extends State<AhorrosVista> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  // New Top Structure: Row containing (Column for Cards) and (Chart)
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.28, // Increased from 0.25
+                    height: MediaQuery.of(context).size.height * 0.28,
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch, // Stretch to fill height
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Left side: Column for Saldo Total Card and SaldoResumen Carousel
                         Expanded(
-                          flex: 5, // Adjust flex as needed
+                          flex: 5,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              // Top-Left: Saldo Total Card
                               Expanded(
-                                flex: 2, // Smaller portion for saldo total
+                                flex: 2,
                                 child: Card(
                                   elevation: 1,
-                                  margin: const EdgeInsets.only(bottom: 4.0), // Reduced bottom margin
+                                  margin: const EdgeInsets.only(bottom: 4.0),
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0), // Reduced padding
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0, vertical: 6.0),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           "Saldo total:",
-                                          style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleSmall
+                                              ?.copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant),
                                         ),
                                         Text(
                                           "${saldoActual.toStringAsFixed(2)} €",
-                                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.primary,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineSmall
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
                               ),
-                              // Bottom-Left: SaldoResumen Carousel Card
                               Expanded(
-                                flex: 3, // Larger portion for the carousel
+                                flex: 3,
                                 child: SaldoResumen(
-                                  // saldoActual is no longer passed here
                                   totalIngresos: totalIngresos,
                                   totalGastos: totalGastos,
                                   ingresosMesActual: ingresosMesActual,
@@ -246,11 +245,10 @@ class AhorrosVistaState extends State<AhorrosVista> {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 16.0), // Space between left column and right chart
-                        // Right side: CompactFinanceChart
+                        const SizedBox(width: 16.0),
                         Expanded(
-                          flex: 4, // Adjust flex as needed
-                          child: CompactFinanceChart(
+                          flex: 4,
+                          child: GraficoAhorros(
                             transacciones: listaAhorros.map((mov) {
                               return {
                                 'fecha': mov['fecha_registro'],
@@ -258,15 +256,15 @@ class AhorrosVistaState extends State<AhorrosVista> {
                                 'tipo': mov['tipo'],
                               };
                             }).toList(),
-                            saldoTotal: saldoActual, // Added back: Pass saldoActual from AhorrosVista
-                            ingresos: totalIngresos, 
+                            saldoTotal: saldoActual,
+                            ingresos: totalIngresos,
                             gastos: totalGastos,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20.0), // Espacio antes de DetalleMovimientos
+                  const SizedBox(height: 20.0),
                   Expanded(
                     child: DetalleMovimientos(
                       ahorros: listaAhorros,
@@ -279,8 +277,7 @@ class AhorrosVistaState extends State<AhorrosVista> {
             ),
             if (carga)
               Container(
-                color: Colors.black
-                    .withOpacity(0.1), // Fondo semitransparente para el loader
+                color: Colors.black.withValues(alpha: 0.1),
                 child: Center(
                   child: SpinKitFadingCube(
                     color: Theme.of(context).colorScheme.primary,

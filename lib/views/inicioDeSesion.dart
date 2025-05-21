@@ -53,7 +53,7 @@ class _InicioSesionState extends State<InicioSesion> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFD6E2EA),
+      backgroundColor: const Color(0xFFD6E2EA), 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -62,7 +62,7 @@ class _InicioSesionState extends State<InicioSesion> {
               "BearBalance",
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Colors.black, 
                   ),
               textAlign: TextAlign.center,
             ),
@@ -151,8 +151,8 @@ class _InicioSesionState extends State<InicioSesion> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                        backgroundColor: const Color(0xFF5975A8), 
+                        foregroundColor: Colors.white, 
                         padding: const EdgeInsets.symmetric(vertical: 16), 
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.0),
@@ -198,9 +198,10 @@ class _InicioSesionState extends State<InicioSesion> {
                         icon: Container(
                           width: 40,
                           height: 40,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
+                            color: Colors.white, 
                             shape: BoxShape.circle,
-                            image: DecorationImage(
+                            image: const DecorationImage(
                               image: AssetImage('assets/logoGoogle.png'),
                               fit: BoxFit.cover,
                             ),
@@ -211,15 +212,19 @@ class _InicioSesionState extends State<InicioSesion> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => RegistroVista(),
-                        ),
+                        MaterialPageRoute(builder: (context) => const RegistroVista()),
                       );
                     },
-                    child: Text("¿Aún no eres usuario? Registrate aquí",
-                        style: TextStyle(color: Theme.of(context).colorScheme.primary, decoration: TextDecoration.underline, decorationColor: Theme.of(context).colorScheme.primary)),
+                    child: Text(
+                      "¿Aún no eres usuario? Regístrate aquí",
+                      style: TextStyle(
+                        color: const Color(0xFF5975A8), 
+                        decoration: TextDecoration.underline,
+                        decorationColor: const Color(0xFF5975A8) 
+                      ),
+                    ),
                   ),
                 ],
               ),

@@ -13,11 +13,8 @@ class ConfiguracionPantalla extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        // AppBar will automatically add a back button if appropriate.
-        // If explicit control is needed, use: leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
         title: Text('Configuración'),
-        elevation: 0, // Optional: for a flatter look like CupertinoNavigationBar
-        // backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Optional: to match scaffold
+        elevation: 0,
       ),
       body: SafeArea(
         child: Padding(
@@ -28,15 +25,12 @@ class ConfiguracionPantalla extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text('Modo Oscuro', style: TextStyle(fontSize: 17)),
-
-                  // Interruptor para activar o desactivar el modo oscuro
                   Switch(
                     value: themeProvider.modoOscuro,
                     onChanged: (value) {
-                      // Cambiamos el valor del modo oscuro cuando el usuario interactúa
                       themeProvider.switchModoOscuro(value);
                     },
-                    activeColor: Theme.of(context).colorScheme.primary, // Optional: to style the switch
+                    activeColor: Theme.of(context).colorScheme.primary,
                   ),
                 ],
               ),

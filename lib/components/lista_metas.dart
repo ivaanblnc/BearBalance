@@ -19,24 +19,24 @@ class ListaMetas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (metas.isEmpty) {
-      return const Center(child: Padding(
+      return const Center(
+          child: Padding(
         padding: EdgeInsets.all(20.0),
         child: Text(
-          "Aún no has definido ninguna meta. ¡Empieza a planificar tus ahorros!", 
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16, color: Colors.grey)
-          ),
+            "Aún no has definido ninguna meta. ¡Empieza a planificar tus ahorros!",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16, color: Colors.grey)),
       ));
     }
 
     return ListView.builder(
-      shrinkWrap: isNested, // Use the new parameter
-      physics: isNested ? const NeverScrollableScrollPhysics() : null, // Conditionally apply physics
+      shrinkWrap: isNested,
+      physics: isNested ? const NeverScrollableScrollPhysics() : null,
       itemCount: metas.length,
       itemBuilder: (context, index) {
         final metaMap = metas[index];
         final metaInfo = controlador.convertirMapaAMeta(metaMap);
-        
+
         return GestureDetector(
           onTap: onMetaTap != null ? () => onMetaTap!(metaMap) : null,
           child: _crearItemMeta(context, metaInfo),
@@ -47,44 +47,49 @@ class ListaMetas extends StatelessWidget {
 
   Widget _crearItemMeta(BuildContext context, Informacionmetas? meta) {
     final theme = Theme.of(context);
-    final themePrimaryColor = theme.colorScheme.primary; // Defined for clarity
+    final themePrimaryColor = theme.colorScheme.primary;
 
     double progreso = 0.0;
     if (meta != null && meta.cantidadObjetivo > 0) {
       progreso = (meta.cantidadAhorrada) / (meta.cantidadObjetivo);
     }
-    progreso = progreso.clamp(0.0, 1.0); // Asegurar que esté entre 0 y 1
+    progreso = progreso.clamp(0.0, 1.0);
 
-    final String cantidadAhorradaStr = meta?.cantidadAhorrada.toStringAsFixed(2) ?? '0.00';
-    final String cantidadObjetivoStr = meta?.cantidadObjetivo.toStringAsFixed(2) ?? '0.00';
+    final String cantidadAhorradaStr =
+        meta?.cantidadAhorrada.toStringAsFixed(2) ?? '0.00';
+    final String cantidadObjetivoStr =
+        meta?.cantidadObjetivo.toStringAsFixed(2) ?? '0.00';
     final String porcentajeStr = (progreso * 100).toStringAsFixed(0);
 
     return Card(
-      elevation: 1.5, // Un poco menos de elevación para un look más sutil
-      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0), // Margen reducido
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)), // Bordes un poco menos redondeados
+      elevation: 1.5,
+      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       child: Padding(
-        padding: const EdgeInsets.all(12.0), // Padding interno reducido
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               meta?.nombre ?? 'Meta sin nombre',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface), // titleMedium en vez de titleLarge
+              style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 10.0), // SizedBox reducido
+            const SizedBox(height: 10.0),
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
               child: LinearProgressIndicator(
                 value: progreso,
-                minHeight: 8, // Altura de barra reducida
-                backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.5),
-                valueColor: AlwaysStoppedAnimation<Color>(themePrimaryColor), // Changed to themePrimaryColor
+                minHeight: 8,
+                backgroundColor:
+                    theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                valueColor: AlwaysStoppedAnimation<Color>(themePrimaryColor),
               ),
             ),
-            const SizedBox(height: 8.0), // SizedBox reducido
+            const SizedBox(height: 8.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -101,23 +106,27 @@ class ListaMetas extends StatelessWidget {
                   '$porcentajeStr%',
                   style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: themePrimaryColor, // Changed to themePrimaryColor
+                    color: themePrimaryColor,
                   ),
                 ),
               ],
             ),
             if (meta?.fecha != null && meta!.fecha.isNotEmpty) ...[
-              const SizedBox(height: 8.0), // SizedBox reducido
-              Divider(color: theme.dividerColor.withOpacity(0.4), height: 1, thickness: 0.5),
-              const SizedBox(height: 8.0), // SizedBox reducido
+              const SizedBox(height: 8.0),
+              Divider(
+                  color: theme.dividerColor.withOpacity(0.4),
+                  height: 1,
+                  thickness: 0.5),
+              const SizedBox(height: 8.0),
               Row(
                 children: [
-                  Icon(Icons.flag_outlined, size: 18, color: theme.colorScheme.onSurfaceVariant),
+                  Icon(Icons.flag_outlined,
+                      size: 18, color: theme.colorScheme.onSurfaceVariant),
                   const SizedBox(width: 8),
                   Text(
-                    "Fecha objetivo: ${meta.fecha}", // Asumiendo que meta.fecha es un String formateado
+                    "Fecha objetivo: ${meta.fecha}",
                     style: theme.textTheme.bodySmall?.copyWith(
-                       color: theme.colorScheme.onSurfaceVariant,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],

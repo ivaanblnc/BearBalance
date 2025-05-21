@@ -5,14 +5,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/cambiarTema.dart';
 import 'package:provider/provider.dart';
 import 'package:tfg_ivandelllanoblanco/views/paginaInicio.dart';
-import 'package:intl/date_symbol_data_local.dart'; // Importación añadida
-import 'package:flutter_spinkit/flutter_spinkit.dart'; // Import flutter_spinkit
-import 'package:tfg_ivandelllanoblanco/my_custom_scroll_behavior.dart'; // Importa el ScrollBehavior personalizado
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:tfg_ivandelllanoblanco/my_custom_scroll_behavior.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inicializar formato de fecha para español
+  // Inicializamos el formato de fecha para español
   await initializeDateFormatting('es_ES', null);
 
   await Supabase.initialize(
@@ -55,8 +55,7 @@ class _MainAppState extends State<MainApp> {
       final datosUsuario =
           await LoginControlador().modelo.obtenerNombreUsuario(userId);
       setState(() {
-        _nombreUsuario = datosUsuario?['nombre_usuario'] ??
-            "Usuario";
+        _nombreUsuario = datosUsuario?['nombre_usuario'] ?? "Usuario";
         _sesionIniciada = true;
       });
     } else {
@@ -74,7 +73,7 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     if (_cargando) {
       return MaterialApp(
-        scrollBehavior: MyCustomScrollBehavior(), // Aplica el ScrollBehavior
+        scrollBehavior: MyCustomScrollBehavior(),
         home: Scaffold(
           body: Center(
             child: SpinKitFadingCube(
@@ -88,7 +87,7 @@ class _MainAppState extends State<MainApp> {
     }
 
     return MaterialApp(
-      scrollBehavior: MyCustomScrollBehavior(), // Aplica el ScrollBehavior
+      scrollBehavior: MyCustomScrollBehavior(),
       home:
           _sesionIniciada ? PaginaInicioVista(_nombreUsuario) : InicioSesion(),
       routes: {
@@ -97,7 +96,7 @@ class _MainAppState extends State<MainApp> {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF007AFF), // Cupertino Blue
+          seedColor: const Color(0xFF007AFF),
           brightness: Provider.of<CambiarTema>(context).modoOscuro
               ? Brightness.dark
               : Brightness.light,

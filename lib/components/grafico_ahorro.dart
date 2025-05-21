@@ -2,13 +2,13 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class CompactFinanceChart extends StatelessWidget {
+class GraficoAhorros extends StatelessWidget {
   final double saldoTotal;
   final double ingresos;
   final double gastos;
   final List<Map<String, dynamic>> transacciones;
 
-  const CompactFinanceChart({
+  const GraficoAhorros({
     super.key,
     required this.saldoTotal,
     required this.ingresos,
@@ -100,14 +100,15 @@ class CompactFinanceChart extends StatelessWidget {
                   lineTouchData: LineTouchData(
                     enabled: true,
                     touchTooltipData: LineTouchTooltipData(
-                      tooltipMargin: 12.0, // Ajusta el margen alrededor del tooltip (antes tooltipBottomMargin)
+                      tooltipMargin: 12.0,
                       getTooltipColor: (_) => isDark
                           ? Colors.grey[800]!.withOpacity(0.95)
                           : Colors.white.withOpacity(0.95),
                       tooltipRoundedRadius: 4,
                       getTooltipItems: (touchedSpots) {
                         return touchedSpots.map((spot) {
-                          final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
+                          final date = DateTime.fromMillisecondsSinceEpoch(
+                              spot.x.toInt());
                           return LineTooltipItem(
                             DateFormat('dd MMM', 'es_ES').format(date),
                             TextStyle(
@@ -116,9 +117,12 @@ class CompactFinanceChart extends StatelessWidget {
                             ),
                             children: [
                               TextSpan(
-                                text: '\n${NumberFormat.currency(locale: 'es_ES', symbol: '€').format(spot.y)}',
+                                text:
+                                    '\n${NumberFormat.currency(locale: 'es_ES', symbol: '€').format(spot.y)}',
                                 style: TextStyle(
-                                  color: spot.y >= 0 ? positiveColor : negativeColor,
+                                  color: spot.y >= 0
+                                      ? positiveColor
+                                      : negativeColor,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 9,
                                 ),
@@ -148,7 +152,8 @@ class CompactFinanceChart extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      NumberFormat.currency(locale: 'es_ES', symbol: '€').format(ingresos),
+                      NumberFormat.currency(locale: 'es_ES', symbol: '€')
+                          .format(ingresos),
                       style: TextStyle(
                         color: positiveColor,
                         fontSize: 12,
@@ -167,7 +172,8 @@ class CompactFinanceChart extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      NumberFormat.currency(locale: 'es_ES', symbol: '€').format(gastos),
+                      NumberFormat.currency(locale: 'es_ES', symbol: '€')
+                          .format(gastos),
                       style: TextStyle(
                         color: negativeColor,
                         fontSize: 12,

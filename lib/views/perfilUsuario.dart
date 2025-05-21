@@ -68,13 +68,14 @@ class _PerfilVistaState extends State<PerfilVista> {
       appBar: AppBar(
         title: Text(
           "Mi Perfil",
-          style: TextStyle(color: colorScheme.onSurface), // Or let it default
+          style: TextStyle(color: colorScheme.onSurface),
         ),
-        backgroundColor: theme.colorScheme.surface, // Using a theme-consistent background
+        backgroundColor: theme.colorScheme.surface,
         elevation: 1,
         actions: [
           IconButton(
-            icon: Icon(Icons.settings_outlined, color: theme.colorScheme.primary),
+            icon:
+                Icon(Icons.settings_outlined, color: theme.colorScheme.primary),
             tooltip: 'Configuración',
             onPressed: () {
               Navigator.of(context).push(
@@ -119,7 +120,7 @@ class _PerfilVistaState extends State<PerfilVista> {
                     DetallesPerfil(
                       datosUsuario: datosUsuario!,
                       onCampoActualizado: _actualizarCampo,
-                      contexto: context, // Pass the context here
+                      contexto: context,
                     ),
 
                     SizedBox(height: MediaQuery.of(context).size.height * 0.02),

@@ -1,8 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
 
 class PerfilControlador {
   final _supabase = Supabase.instance.client;
@@ -164,14 +164,14 @@ class PerfilControlador {
     if (imagen != null) {
       // En la web mostramos una alerta porque no está permitido
       if (kIsWeb) {
-        showCupertinoDialog(
+        showDialog(
           context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: Text("Avertencia"),
+          builder: (context) => AlertDialog(
+            title: Text("Advertencia"),
             content:
                 Text("La selección de imágenes no está permitida en la web"),
             actions: [
-              CupertinoDialogAction(
+              TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text("Aceptar"),
               ),

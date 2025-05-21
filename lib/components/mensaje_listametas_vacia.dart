@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MensajeVacioMetas extends StatelessWidget {
@@ -51,7 +50,11 @@ class MensajeVacioMetas extends StatelessWidget {
             const SizedBox(height: 20),
           ],
           if (mostrarBoton && onAniadirMeta != null) ...[
-            CupertinoButton.filled(
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              ),
               onPressed: onAniadirMeta,
               child: const Text("Añadir Meta"),
             ),

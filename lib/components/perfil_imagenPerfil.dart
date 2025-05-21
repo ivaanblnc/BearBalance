@@ -48,7 +48,7 @@ class PerfilImagen extends StatelessWidget {
                       placeholder: (context, url) => Center(
                         child: SpinKitFadingCube(
                           color: Theme.of(context).colorScheme.primary,
-                          size: size / 2, // Adjust size as needed
+                          size: size / 2,
                         ),
                       ),
                       errorWidget: (context, url, error) => Image.asset(

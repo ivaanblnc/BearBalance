@@ -51,9 +51,9 @@ class PaginaInicioContenido extends StatelessWidget {
       ahorro.saldo = currentSaldo;
     }
 
-    return Scaffold( // Changed from CupertinoPageScaffold
-      appBar: AppBar( // Changed from CupertinoNavigationBar
-        leadingWidth: 200, // Increase width to accommodate the greeting
+    return Scaffold(
+      appBar: AppBar(
+        leadingWidth: 200,
         leading: Padding(
           padding: const EdgeInsets.only(left: 16.0),
           child: Align(
@@ -61,50 +61,50 @@ class PaginaInicioContenido extends StatelessWidget {
             child: RichText(
               text: TextSpan(
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.normal, // Regular weight for "Hola,"
+                      fontWeight: FontWeight.normal,
                     ),
                 children: <TextSpan>[
                   TextSpan(text: 'Hola, '),
                   TextSpan(
                       text: nombreUsuario,
                       style: TextStyle(
-                          fontWeight: FontWeight.bold, 
-                          color: Theme.of(context).colorScheme.primary
-                      )
-                  ),
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary)),
                 ],
               ),
             ),
           ),
         ),
-        title: Text(''), // Empty title,
+        title: Text(''),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: GestureDetector(
               onTap: onPerfilTap,
               child: CircleAvatar(
-                backgroundImage:
-                    datosusuario != null && datosusuario?['imagen_perfil'] != null
-                        ? NetworkImage(datosusuario!['imagen_perfil']) // Added ! for null safety, ensure datosusuario is checked
-                        : null,
-                child: datosusuario == null || datosusuario?['imagen_perfil'] == null
+                backgroundImage: datosusuario != null &&
+                        datosusuario?['imagen_perfil'] != null
+                    ? NetworkImage(datosusuario!['imagen_perfil'])
+                    : null,
+                child: datosusuario == null ||
+                        datosusuario?['imagen_perfil'] == null
                     ? const Icon(Icons.account_circle_outlined)
                     : null,
               ),
             ),
           ),
         ],
-        backgroundColor: Theme.of(context).colorScheme.surface, // Or primary, or transparent
-        elevation: 0, // For a flatter look, adjust as needed
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        elevation: 0,
       ),
       body: SafeArea(
-        child: SingleChildScrollView( // Added SingleChildScrollView for potentially long content
+        child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // Align content to the start
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Text(
                   "Saldo Actual: ${saldoActual.toStringAsFixed(2)} €",
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -113,16 +113,14 @@ class PaginaInicioContenido extends StatelessWidget {
                       ),
                 ),
               ),
-              // SizedBox(height: MediaQuery.of(context).size.height * 0.02), // Consider removing or reducing for tighter layout
-              SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Reduced spacing
-              Container( // Added container for chart constraints
-                height: MediaQuery.of(context).size.height * 0.4, // Increased from 0.35 to 0.4
-                padding: const EdgeInsets.symmetric(horizontal: 8.0), // Padding for chart
-                child: GraficoAhorros(ahorrosList: listaAhorros)
-              ),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+              Container(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: GraficoPrincipal(ahorrosList: listaAhorros)),
               SizedBox(height: MediaQuery.of(context).size.height * 0.02),
               if (metas.isEmpty)
-                Padding( // Added padding for consistency
+                Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: MensajeVacioMetas(
                       mostrarIcono: false,
@@ -134,11 +132,15 @@ class PaginaInicioContenido extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
                     children: [
-                      Icon(Icons.flag_circle, color: Theme.of(context).colorScheme.secondary),
+                      Icon(Icons.flag_circle,
+                          color: Theme.of(context).colorScheme.secondary),
                       const SizedBox(width: 8),
                       Text(
                         "Metas",
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(
                               color: Theme.of(context).colorScheme.secondary,
                               fontWeight: FontWeight.bold,
                             ),
@@ -146,17 +148,16 @@ class PaginaInicioContenido extends StatelessWidget {
                     ],
                   ),
                 ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Reduced spacing
-              // Removed Flexible from ListaMetas as it's inside SingleChildScrollView
-              Padding( // Added padding for consistency
+              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: ListaMetas(
-                  metas: metas, 
+                  metas: metas,
                   controlador: controladorMetas,
-                  isNested: true, // Added to specify nested context
+                  isNested: true,
                 ),
               ),
-              SizedBox(height: 20), // Add some padding at the bottom
+              SizedBox(height: 20),
             ],
           ),
         ),

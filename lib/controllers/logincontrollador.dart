@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tfg_ivandelllanoblanco/views/paginaInicio.dart';
 import 'package:tfg_ivandelllanoblanco/models/loginUsuario.dart';
@@ -26,7 +26,7 @@ class LoginControlador {
         Navigator.push(
           // ignore: use_build_context_synchronously
           context,
-          CupertinoPageRoute(
+          MaterialPageRoute(
             builder: (context) => PaginaInicioVista(nombreUsuario),
           ),
         );
@@ -87,7 +87,7 @@ class LoginControlador {
             //Navegamos a la pagina de inicio de la app
             Navigator.pushReplacement(
               context,
-              CupertinoPageRoute(
+              MaterialPageRoute(
                 builder: (context) => PaginaInicioVista(nombreUsuario),
               ),
             );
@@ -107,14 +107,14 @@ class LoginControlador {
 
   //Metodo para mostrar un mensaje de error
   void mostrarError(BuildContext context, String mensaje) {
-    showCupertinoDialog(
+    showDialog(
       context: context,
       builder: (builder) {
-        return CupertinoAlertDialog(
+        return AlertDialog(
           title: const Text("Error"),
           content: Text(mensaje),
           actions: [
-            CupertinoDialogAction(
+            TextButton(
               child: const Text("Aceptar"),
               onPressed: () => Navigator.pop(context),
             ),

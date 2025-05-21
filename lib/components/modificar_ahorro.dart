@@ -1,11 +1,10 @@
-import 'package:flutter/material.dart'; // Cambiado de cupertino.dart
+import 'package:flutter/material.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/ahorroscontrolador.dart';
 import 'package:intl/intl.dart';
 
 class FormularioMovimientoDialogo {
   static void mostrarDialogo(
     BuildContext contexto,
-    // dynamic estadoVista, // Parece no usarse, considerar eliminar si es así.
     Future<void> Function() cargarAhorros, {
     Map<String, dynamic>? ahorro,
   }) {
@@ -32,136 +31,161 @@ class FormularioMovimientoDialogo {
 
             final InputDecoration modernInputDecoration = InputDecoration(
               filled: true,
-              fillColor: theme.colorScheme.surfaceContainerHighest, 
+              fillColor: theme.colorScheme.surfaceContainerHighest,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide.none, 
+                borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-              labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+              labelStyle: TextStyle(
+                  color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8)),
             );
 
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16.0)),
               title: Text(ahorro == null
                   ? 'Nuevo Movimiento'
                   : 'Actualizar Movimiento'),
               content: SingleChildScrollView(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min, // Para que la columna no ocupe más de lo necesario
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (tipoMovimiento == 'gasto')
                       TextField(
-                        decoration: modernInputDecoration.copyWith(labelText: 'Descripción (opcional)'),
+                        decoration: modernInputDecoration.copyWith(
+                            labelText: 'Descripción (opcional)'),
                         onChanged: (valor) => categoriaActual = valor,
-                        controller: TextEditingController(text: categoriaActual),
+                        controller:
+                            TextEditingController(text: categoriaActual),
                       ),
                     if (tipoMovimiento == 'gasto') SizedBox(height: 16),
                     TextField(
-                        decoration: modernInputDecoration.copyWith(labelText: 'Cantidad'),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: false),
-                        onChanged: (valor) {
-                          final parsed = double.tryParse(valor);
-                          if (parsed == null || parsed <= 0) {
-                            cantidadError.value = 'Introduce un número válido y mayor a 0.';
-                          } else {
-                            cantidadActual = parsed;
-                            cantidadError.value = null;
+                      decoration:
+                          modernInputDecoration.copyWith(labelText: 'Cantidad'),
+                      keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true, signed: false),
+                      onChanged: (valor) {
+                        final parsed = double.tryParse(valor);
+                        if (parsed == null || parsed <= 0) {
+                          cantidadError.value =
+                              'Introduce un número válido y mayor a 0.';
+                        } else {
+                          cantidadActual = parsed;
+                          cantidadError.value = null;
+                        }
+                      },
+                      controller: TextEditingController(
+                          text: cantidadActual > 0
+                              ? cantidadActual.toString()
+                              : ''),
+                    ),
+                    ValueListenableBuilder<String?>(
+                      valueListenable: cantidadError,
+                      builder: (context, error, _) {
+                        return error != null
+                            ? Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  error,
+                                  style: TextStyle(
+                                      color: theme.colorScheme.error,
+                                      fontSize: 12),
+                                ),
+                              )
+                            : SizedBox.shrink();
+                      },
+                    ),
+                    SizedBox(height: 16),
+                    SegmentedButton<String>(
+                      segments: <ButtonSegment<String>>[
+                        ButtonSegment<String>(
+                            value: 'ingreso',
+                            label: Text('Ingreso'),
+                            icon: Icon(Icons.add_circle_outline)),
+                        ButtonSegment<String>(
+                            value: 'gasto',
+                            label: Text('Gasto'),
+                            icon: Icon(Icons.remove_circle_outline)),
+                      ],
+                      selected: <String>{tipoMovimiento},
+                      onSelectionChanged: (Set<String> newSelection) {
+                        actualizarEstado(() {
+                          tipoMovimiento = newSelection.first;
+                          if (tipoMovimiento == 'ingreso' &&
+                              ahorro == null &&
+                              (categoriaOriginal == null ||
+                                  categoriaOriginal.isEmpty)) {
+                            categoria = '';
+                            categoriaActual = '';
                           }
-                        },
-                        controller: TextEditingController(text: cantidadActual > 0 ? cantidadActual.toString() : ''),
+                        });
+                      },
+                      style: SegmentedButton.styleFrom(
+                        backgroundColor:
+                            theme.colorScheme.surfaceContainerHighest,
+                        selectedForegroundColor: theme.colorScheme.onPrimary,
+                        selectedBackgroundColor: theme.colorScheme.primary,
+                        side: BorderSide.none,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0)),
                       ),
-                      ValueListenableBuilder<String?>(
-                        valueListenable: cantidadError,
-                        builder: (context, error, _) {
-                          return error != null
-                              ? Padding(
-                                  padding: const EdgeInsets.only(top: 8.0),
-                                  child: Text(
-                                    error,
-                                    style: TextStyle(color: theme.colorScheme.error, fontSize: 12),
-                                  ),
-                                )
-                              : SizedBox.shrink();
-                        },
-                      ),
-                      SizedBox(height: 16),
-                      SegmentedButton<String>(
-                        segments: <ButtonSegment<String>>[
-                          ButtonSegment<String>(
-                              value: 'ingreso',
-                              label: Text('Ingreso'),
-                              icon: Icon(Icons.add_circle_outline)),
-                          ButtonSegment<String>(
-                              value: 'gasto',
-                              label: Text('Gasto'),
-                              icon: Icon(Icons.remove_circle_outline)),
-                        ],
-                        selected: <String>{tipoMovimiento},
-                        onSelectionChanged: (Set<String> newSelection) {
+                      showSelectedIcon: false,
+                    ),
+                    SizedBox(height: 20),
+                    InkWell(
+                      onTap: () async {
+                        final nuevaFecha = await _mostrarSelectorFechaMaterial(
+                          contextoBuilder,
+                          fechaRegistro,
+                        );
+                        if (nuevaFecha != null) {
                           actualizarEstado(() {
-                            tipoMovimiento = newSelection.first;
-                            if (tipoMovimiento == 'ingreso' && ahorro == null && (categoriaOriginal == null || categoriaOriginal.isEmpty)) {
-                              categoria = '';
-                              categoriaActual = ''; // Ensure this is also cleared
-                            }
+                            fechaRegistro = nuevaFecha;
                           });
-                        },
-                        style: SegmentedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                          selectedForegroundColor: theme.colorScheme.onPrimary, // Changed to onPrimary
-                          selectedBackgroundColor: theme.colorScheme.primary, // Changed to primary
-                          side: BorderSide.none,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                        }
+                      },
+                      child: Container(
+                        padding:
+                            (modernInputDecoration.contentPadding as EdgeInsets)
+                                .copyWith(right: 12.0),
+                        decoration: BoxDecoration(
+                          color: modernInputDecoration.fillColor,
+                          borderRadius: (modernInputDecoration.border
+                                  as OutlineInputBorder)
+                              .borderRadius,
                         ),
-                        showSelectedIcon: false,
-                      ),
-                      SizedBox(height: 20),
-                      // Estilizando el selector de fecha
-                      InkWell(
-                        onTap: () async {
-                          final nuevaFecha = await _mostrarSelectorFechaMaterial(
-                            contextoBuilder, // Usar el contexto del builder del diálogo
-                            fechaRegistro,
-                          );
-                          if (nuevaFecha != null) {
-                            actualizarEstado(() {
-                              fechaRegistro = nuevaFecha;
-                            });
-                          }
-                        },
-                        child: Container(
-                          padding: (modernInputDecoration.contentPadding as EdgeInsets).copyWith(right: 12.0), // Cast to EdgeInsets then copyWith
-                          decoration: BoxDecoration(
-                            color: modernInputDecoration.fillColor,
-                            borderRadius: (modernInputDecoration.border as OutlineInputBorder).borderRadius,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                _fechaLimiteTexto(fechaRegistro), // Usamos la función para formatear
-                                style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.9)),
-                              ),
-                              Icon(Icons.calendar_today, color: theme.colorScheme.primary, size: 20), // Removed const
-                            ],
-                          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _fechaLimiteTexto(fechaRegistro),
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.9)),
+                            ),
+                            Icon(Icons.calendar_today,
+                                color: theme.colorScheme.primary, size: 20),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ),
               actions: [
                 TextButton(
-                  child: Text('Cancelar', style: TextStyle(color: theme.colorScheme.primary)), // Removed const
+                  child: Text('Cancelar',
+                      style: TextStyle(color: theme.colorScheme.primary)),
                   onPressed: () => Navigator.pop(contextoDialogo),
                 ),
-                ElevatedButton( // Usar ElevatedButton para la acción principal
-                  style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary, foregroundColor: theme.colorScheme.onPrimary), 
-                  child: Text(ahorro == null
-                      ? 'Agregar'
-                      : 'Actualizar'),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: theme.colorScheme.onPrimary),
+                  child: Text(ahorro == null ? 'Agregar' : 'Actualizar'),
                   onPressed: () async {
                     if (cantidadActual > 0) {
                       final String? categoriaParaGuardar =
@@ -191,22 +215,20 @@ class FormularioMovimientoDialogo {
                     } else if (cantidadActual <= 0) {
                       cantidadError.value = 'La cantidad debe ser mayor que 0.';
                     }
-                    // Si cantidadError.value ya tiene un mensaje (ej. no es un número válido), no hacer nada más.
                   },
                 ),
-              ], // Closes actions list
-            ); // Closes AlertDialog
-          }, // Closes StatefulBuilder's builder
-        ); // Closes StatefulBuilder
-      }, // Closes showDialog's builder
-    ); // Closes showDialog
-  } // Cierre del método mostrarDialogo
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   static String _fechaLimiteTexto(DateTime fecha) {
     return 'Fecha: ${DateFormat('dd/MM/yyyy').format(fecha.toLocal())}';
   }
 
-  // Método adaptado para Material Design Date Picker
   static Future<DateTime?> _mostrarSelectorFechaMaterial(
     BuildContext context,
     DateTime fechaInicial,
@@ -224,14 +246,14 @@ class FormularioMovimientoDialogo {
         return Theme(
           data: theme.copyWith(
             colorScheme: theme.colorScheme.copyWith(
-              primary: theme.colorScheme.primary, // DatePicker primary color
-              onPrimary: theme.colorScheme.onPrimary, // Text on DatePicker primary color
-              surface: theme.colorScheme.surface, // Background of DatePicker
-              onSurface: theme.colorScheme.onSurface, // Text on DatePicker background
+              primary: theme.colorScheme.primary,
+              onPrimary: theme.colorScheme.onPrimary,
+              surface: theme.colorScheme.surface,
+              onSurface: theme.colorScheme.onSurface,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: theme.colorScheme.primary, // Buttons in DatePicker
+                foregroundColor: theme.colorScheme.primary,
               ),
             ),
           ),
@@ -239,5 +261,5 @@ class FormularioMovimientoDialogo {
         );
       },
     );
-  } // Cierre del método _mostrarSelectorFechaMaterial
-} // Cierre de la CLASE FormularioMovimientoDialogo
+  }
+}

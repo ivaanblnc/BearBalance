@@ -5,7 +5,7 @@ class RegistroModelo {
   // Inicializa el cliente de Supabase
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  // Método para registrar un nuevo usuario
+  // Metodo para registrar un nuevo usuario
   Future<void> registrarUsuario(
     String nombre,
     String apellidos,
@@ -25,7 +25,7 @@ class RegistroModelo {
         throw Exception("El nombre de usuario ya existe.");
       }
 
-      // Llama a Supabase Auth para registrar al usuario
+      // Llamamos a Supabase Auth para registrar al usuario
       final respuestaSignUp = await _supabase.auth.signUp(
         email: correoElectronico,
         password: contrasena,
@@ -35,7 +35,7 @@ class RegistroModelo {
         throw Exception("Error al registrar usuario en autenticación.");
       }
 
-      // Inserta los datos adicionales en la tabla 'usuarios'
+      // Insertamos los datos adicionales en la tabla 'usuarios'
       await _supabase.from('usuarios').insert({
         'id': respuestaSignUp.user!.id,
         'nombre': nombre,

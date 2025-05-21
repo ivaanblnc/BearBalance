@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; // Primarily use Material Design components
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/ahorroscontrolador.dart';
 
@@ -11,12 +11,11 @@ class NuevoAhorroGastoVista extends StatefulWidget {
 
 class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
   final AhorrosControlador controlador = AhorrosControlador();
-  String _tipo = 'ingreso'; // 'ingreso' o 'gasto'
+  String _tipo = 'ingreso';
   double _cantidad = 0.0;
-  // String? _categoria; // Eliminado, se usa _categoriaController.text directamente
   DateTime _fechaRegistro = DateTime.now();
-  final _formKey = GlobalKey<FormState>(); // Para validación con Material Form
-  String? _cantidadErrorText; // Para el error del TextField de cantidad
+  final _formKey = GlobalKey<FormState>();
+  String? _cantidadErrorText;
   final TextEditingController _cantidadController = TextEditingController();
   final TextEditingController _categoriaController = TextEditingController();
 
@@ -38,15 +37,17 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
         borderRadius: BorderRadius.circular(12.0),
         borderSide: BorderSide.none,
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-      labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8)),
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+      labelStyle:
+          TextStyle(color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8)),
       errorStyle: TextStyle(color: theme.colorScheme.error),
     );
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Nuevo Movimiento'),
-        elevation: 0.5, // Sutil elevación
+        elevation: 0.5,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -58,25 +59,28 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
               children: <Widget>[
                 SegmentedButton<String>(
                   segments: const <ButtonSegment<String>>[
-                    ButtonSegment<String>(value: 'ingreso', label: Text('Ingreso'), icon: Icon(Icons.arrow_downward)),
-                    ButtonSegment<String>(value: 'gasto', label: Text('Gasto'), icon: Icon(Icons.arrow_upward)),
+                    ButtonSegment<String>(
+                        value: 'ingreso',
+                        label: Text('Ingreso'),
+                        icon: Icon(Icons.arrow_downward)),
+                    ButtonSegment<String>(
+                        value: 'gasto',
+                        label: Text('Gasto'),
+                        icon: Icon(Icons.arrow_upward)),
                   ],
                   selected: <String>{_tipo},
                   onSelectionChanged: (Set<String> newSelection) {
                     setState(() {
                       _tipo = newSelection.first;
-                      // Limpiar categoría si se cambia a ingreso
                       if (_tipo == 'ingreso') {
-                        // _categoria = null; // _categoria ya no existe
-                        _categoriaController.clear(); // Esto es correcto
+                        _categoriaController.clear();
                       }
                     });
                   },
                   style: SegmentedButton.styleFrom(
                     backgroundColor: theme.colorScheme.surfaceContainer,
-                    selectedForegroundColor: theme.colorScheme.onPrimary, // Ensure contrast
-                    selectedBackgroundColor: theme.colorScheme.primary, // Changed to primary
-                    // visualDensity: VisualDensity.compact, // Para hacerlo un poco más pequeño
+                    selectedForegroundColor: theme.colorScheme.onPrimary,
+                    selectedBackgroundColor: theme.colorScheme.primary,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -86,15 +90,15 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
                     labelText: 'Cantidad',
                     errorText: _cantidadErrorText,
                   ),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: false),
+                  keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true, signed: false),
                   onChanged: (value) {
                     setState(() {
                       final parsed = double.tryParse(value);
                       if (parsed == null || parsed <= 0) {
-                        // El error se mostrará por el validador o por _cantidadErrorText
                       } else {
                         _cantidad = parsed;
-                        _cantidadErrorText = null; // Limpiar error si es válido
+                        _cantidadErrorText = null;
                       }
                     });
                   },
@@ -112,7 +116,7 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
                       _cantidadErrorText = 'La cantidad debe ser mayor que 0.';
                       return _cantidadErrorText;
                     }
-                    _cantidad = parsed; // Actualizar _cantidad aquí también
+                    _cantidad = parsed;
                     _cantidadErrorText = null;
                     return null;
                   },
@@ -121,15 +125,18 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
                 if (_tipo == 'gasto')
                   TextFormField(
                     controller: _categoriaController,
-                    decoration: modernInputDecoration.copyWith(labelText: 'Descripción (opcional)'),
-                    // onChanged: (value) => _categoria = value, // Eliminado, el valor se toma del controller
+                    decoration: modernInputDecoration.copyWith(
+                        labelText: 'Descripción (opcional)'),
                   ),
                 if (_tipo == 'gasto') const SizedBox(height: 16),
                 TextButton.icon(
-                  icon: Icon(Icons.calendar_today, color: theme.colorScheme.primary), // Changed to primary
+                  icon: Icon(Icons.calendar_today,
+                      color: theme.colorScheme.primary),
                   label: Text(
                     'Fecha: ${DateFormat('dd/MM/yyyy').format(_fechaRegistro.toLocal())}',
-                    style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.w500), // Changed to primary
+                    style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w500),
                   ),
                   onPressed: () async {
                     final DateTime? picked = await showDatePicker(
@@ -144,12 +151,12 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
                         return Theme(
                           data: theme.copyWith(
                             colorScheme: theme.colorScheme.copyWith(
-                              primary: theme.colorScheme.primary, // Changed to primary for DatePicker
-                              onPrimary: theme.colorScheme.onPrimary, // Ensure good contrast for text on primary
+                              primary: theme.colorScheme.primary,
+                              onPrimary: theme.colorScheme.onPrimary,
                             ),
                             textButtonTheme: TextButtonThemeData(
                               style: TextButton.styleFrom(
-                                foregroundColor: theme.colorScheme.primary, // Changed to primary for DatePicker buttons
+                                foregroundColor: theme.colorScheme.primary,
                               ),
                             ),
                           ),
@@ -163,29 +170,33 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
                       });
                     }
                   },
-                  style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12.0)),
+                  style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0)),
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary, // Changed to primary
-                    foregroundColor: theme.colorScheme.onPrimary, // Ensure text is visible
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: theme.colorScheme.onPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    textStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onPrimary), // Ensure text is visible
+                    textStyle: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onPrimary),
                   ),
                   child: const Text('Guardar'),
                   onPressed: () async {
-                    // Actualizar _cantidad una última vez antes de validar
                     final currentCantidadText = _cantidadController.text;
                     final parsedCantidad = double.tryParse(currentCantidadText);
                     if (parsedCantidad != null) {
                       _cantidad = parsedCantidad;
                     } else {
-                      _cantidad = 0; // o manejar el error de parseo
+                      _cantidad = 0;
                     }
 
                     if (_formKey.currentState!.validate()) {
-                      final String? categoriaParaGuardar = _tipo == 'ingreso' ? null : _categoriaController.text.trim();
+                      final String? categoriaParaGuardar = _tipo == 'ingreso'
+                          ? null
+                          : _categoriaController.text.trim();
                       final ahorro = {
                         'tipo': _tipo,
                         'cantidad': _cantidad,
@@ -194,12 +205,12 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
                       };
                       try {
                         await controlador.agregarAhorro(ahorro);
-                        if (mounted) Navigator.pop(context, true); // Indicar que se guardó algo
+                        if (mounted) Navigator.pop(context, true);
                       } catch (e) {
                         if (mounted) {
-                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error al guardar: ${e.toString()}'))
-                          );
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content:
+                                  Text('Error al guardar: ${e.toString()}')));
                         }
                         print('Error al guardar: $e');
                       }
@@ -213,5 +224,4 @@ class NuevoAhorroGastoVistaState extends State<NuevoAhorroGastoVista> {
       ),
     );
   }
-  // _validarCantidad ya no es necesario, se usa _formKey.currentState!.validate()
 }

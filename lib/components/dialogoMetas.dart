@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart'; // For CupertinoColors
-import 'package:intl/intl.dart'; // For date formatting
+import 'package:intl/intl.dart';
 import 'package:tfg_ivandelllanoblanco/controllers/metascontrollador.dart';
-
 
 class DialogoMetas extends StatefulWidget {
   final MetasControlador controlador;
@@ -38,7 +36,7 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
   void initState() {
     super.initState();
     final hoy = DateTime.now();
-    final manana = DateTime(hoy.year, hoy.month, hoy.day + 1); // Tomorrow, time set to 00:00
+    final manana = DateTime(hoy.year, hoy.month, hoy.day + 1);
 
     if (widget.meta != null) {
       _tituloController.text = widget.meta!['titulo'] ?? '';
@@ -49,19 +47,20 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
       if (widget.meta!['fecha_limite'] != null &&
           widget.meta!['fecha_limite'].isNotEmpty) {
         _fechaLimite = DateTime.parse(widget.meta!['fecha_limite']);
-        // Ensure _fechaLimite is not in the past for existing goals if editing
         if (_fechaLimite.isBefore(manana)) {
           _fechaLimite = manana;
         }
-        _fechaLimiteController.text = DateFormat('yyyy-MM-dd').format(_fechaLimite);
+        _fechaLimiteController.text =
+            DateFormat('yyyy-MM-dd').format(_fechaLimite);
       } else {
-        _fechaLimite = manana; // Default to tomorrow if existing goal has no date
-        _fechaLimiteController.text = DateFormat('yyyy-MM-dd').format(_fechaLimite);
+        _fechaLimite = manana;
+        _fechaLimiteController.text =
+            DateFormat('yyyy-MM-dd').format(_fechaLimite);
       }
     } else {
-      // New goal: default date to tomorrow
       _fechaLimite = manana;
-      _fechaLimiteController.text = DateFormat('yyyy-MM-dd').format(_fechaLimite);
+      _fechaLimiteController.text =
+          DateFormat('yyyy-MM-dd').format(_fechaLimite);
     }
   }
 
@@ -76,18 +75,14 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
 
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: pickerInitialDate, // Initial date set to tomorrow or later valid date
-      firstDate: manana, // First selectable date is tomorrow
+      initialDate: pickerInitialDate,
+      firstDate: manana,
       lastDate: DateTime(2101),
-      // helpText: 'Seleccionar Fecha Límite',
-      // cancelText: 'Cancelar',
-      // confirmText: 'Aceptar',
     );
     if (picked != null && picked != _fechaLimite) {
       setState(() {
         _fechaLimite = picked;
-        _fechaLimiteController.text =
-            DateFormat('yyyy-MM-dd').format(picked); // Using intl for formatting
+        _fechaLimiteController.text = DateFormat('yyyy-MM-dd').format(picked);
       });
     }
   }
@@ -132,7 +127,6 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
       return 'Formato de fecha inválido (YYYY-MM-DD).';
     }
 
-    // Normalizar 'hoy' a medianoche para una comparación justa de solo fecha
     final hoy = DateTime.now();
     final hoyNormalizado = DateTime(hoy.year, hoy.month, hoy.day);
 
@@ -190,7 +184,6 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // Define InputDecoration centrally for consistency
     InputDecoration _inputDecoration(String label, String? errorText) {
       return InputDecoration(
         labelText: label,
@@ -226,28 +219,35 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
                 controller: _tituloController,
                 decoration: _inputDecoration('Nombre de la meta', _tituloError),
                 validator: _validarTitulo,
-                onChanged: (value) => setState(() => _tituloError = null), // Keep for immediate error clear
+                onChanged: (value) => setState(() => _tituloError = null),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _cantidadAhorradaController,
-                decoration: _inputDecoration('Cantidad ahorrada (€)', _cantidadAhorradaError),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: _inputDecoration(
+                    'Cantidad ahorrada (€)', _cantidadAhorradaError),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 validator: _validarCantidad,
-                onChanged: (value) => setState(() => _cantidadAhorradaError = null),
+                onChanged: (value) =>
+                    setState(() => _cantidadAhorradaError = null),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _cantidadObjetivoController,
-                decoration: _inputDecoration('Cantidad objetivo (€)', _cantidadObjetivoError),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: _validarCantidad, // Assuming same validation as 'ahorrada'
-                onChanged: (value) => setState(() => _cantidadObjetivoError = null),
+                decoration: _inputDecoration(
+                    'Cantidad objetivo (€)', _cantidadObjetivoError),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                validator: _validarCantidad,
+                onChanged: (value) =>
+                    setState(() => _cantidadObjetivoError = null),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _fechaLimiteController,
-                decoration: _inputDecoration('Fecha Límite (YYYY-MM-DD)', _fechaLimiteError),
+                decoration: _inputDecoration(
+                    'Fecha Límite (YYYY-MM-DD)', _fechaLimiteError),
                 readOnly: true,
                 onTap: () => _mostrarSelectorFecha(context),
                 validator: _validarFecha,
@@ -265,8 +265,8 @@ class _CrearModificarMetaDialogState extends State<DialogoMetas> {
           onPressed: _guardarMeta,
           child: const Text('Guardar'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: theme.colorScheme.primary, // Use theme primary color
-            foregroundColor: theme.colorScheme.onPrimary, // Use theme onPrimary color
+            backgroundColor: theme.colorScheme.primary,
+            foregroundColor: theme.colorScheme.onPrimary,
           ),
         ),
       ],

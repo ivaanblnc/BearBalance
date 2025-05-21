@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tfg_ivandelllanoblanco/models/usuarios.dart';
 import 'package:tfg_ivandelllanoblanco/views/InicioDeSesion.dart';
@@ -16,20 +16,20 @@ class RegistroControlador {
     try {
       await modelo.registrarUsuario(
           nombre, apellidos, correoElectronico, nombreUsuario, contrasena);
-      showCupertinoDialog(
+      showDialog(
         context: context,
         builder: (builder) {
-          return CupertinoAlertDialog(
+          return AlertDialog(
             title: const Text("Enhorabuena"),
             content: const Text("Usuario registrado correctamente"),
             actions: [
-              CupertinoDialogAction(
+              TextButton(
                 child: const Text("Aceptar"),
                 onPressed: () {
                   Navigator.pop(context);
                   Navigator.pushAndRemoveUntil(
                     context,
-                    CupertinoPageRoute(builder: (context) => const InicioSesion()),
+                    MaterialPageRoute(builder: (context) => const InicioSesion()),
                     (Route<dynamic> route) => false,
                   );
                 },
@@ -74,14 +74,14 @@ class RegistroControlador {
   }
 
   void _mostrarErrorDialog(BuildContext context, String mensaje) {
-    showCupertinoDialog(
+    showDialog(
       context: context,
       builder: (builder) {
-        return CupertinoAlertDialog(
+        return AlertDialog(
           title: const Text("Error"),
           content: Text(mensaje),
           actions: [
-            CupertinoDialogAction(
+            TextButton(
               child: const Text("Aceptar"),
               onPressed: () => Navigator.pop(context),
             ),

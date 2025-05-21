@@ -3,16 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../entidades/Ahorros.dart';
 
-class GraficoAhorros extends StatelessWidget {
+class GraficoPrincipal extends StatelessWidget {
   final List<Ahorros> ahorrosList;
 
-  const GraficoAhorros({super.key, required this.ahorrosList});
+  const GraficoPrincipal({super.key, required this.ahorrosList});
 
   @override
   Widget build(BuildContext context) {
     final bool esModoOscuro = Theme.of(context).brightness == Brightness.dark;
     final Color colorTexto = esModoOscuro ? Colors.white70 : Colors.black54;
-    final Color colorFondo = esModoOscuro ? Colors.grey[900]! : Colors.grey[50]!;
+    final Color colorFondo =
+        esModoOscuro ? Colors.grey[900]! : Colors.grey[50]!;
 
     if (ahorrosList.isEmpty) {
       return Container(
@@ -24,20 +25,21 @@ class GraficoAhorros extends StatelessWidget {
         child: Center(
           child: Text(
             'No hay datos para mostrar.',
-            style: TextStyle(color: colorTexto, fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: colorTexto, fontSize: 16, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
         ),
       );
     }
 
-    final theme = Theme.of(context); // Get theme for colors
+    final theme = Theme.of(context);
 
-    final Color colorIngresos = theme.colorScheme.primary; // Changed to theme's primary color
-    final Color colorGastos = Colors.orangeAccent; // Keeping as is for now
-    final Color colorSaldo = Colors.purpleAccent;   // Keeping as is for now
+    final Color colorIngresos = theme.colorScheme.primary;
+    final Color colorGastos = Colors.orangeAccent;
+    final Color colorSaldo = Colors.purpleAccent;
 
-    // Procesar datos por trimestre
+    // Procesamos los datos por trimestre
     final quarterData = <DateTime, Map<String, double>>{};
     final spotsIngresos = <FlSpot>[];
     final spotsGastos = <FlSpot>[];
@@ -45,35 +47,37 @@ class GraficoAhorros extends StatelessWidget {
     double maxY = 0;
 
     for (final ahorro in ahorrosList) {
-      final quarterStart = DateTime(ahorro.fecha.year, (ahorro.fecha.month - 1) ~/ 3 * 3 + 1, 1);
+      final quarterStart =
+          DateTime(ahorro.fecha.year, (ahorro.fecha.month - 1) ~/ 3 * 3 + 1, 1);
       final quarterKey = DateTime(quarterStart.year, quarterStart.month);
-      
+
       quarterData.update(quarterKey, (value) {
         return {
           'ingresos': value['ingresos']! + ahorro.ingresos,
           'gastos': value['gastos']! + ahorro.gastos,
         };
-      }, ifAbsent: () => {
-        'ingresos': ahorro.ingresos,
-        'gastos': ahorro.gastos,
-      });
+      },
+          ifAbsent: () => {
+                'ingresos': ahorro.ingresos,
+                'gastos': ahorro.gastos,
+              });
     }
 
-    // Convertir a spots
     quarterData.forEach((quarter, values) {
       final ingresos = values['ingresos']!;
       final gastos = values['gastos']!;
       final saldo = ingresos - gastos;
       final x = quarter.millisecondsSinceEpoch.toDouble();
-      
+
       spotsIngresos.add(FlSpot(x, ingresos));
       spotsGastos.add(FlSpot(x, gastos));
       spotsSaldo.add(FlSpot(x, saldo));
-      
-      maxY = [maxY, ingresos, gastos, saldo.abs()].reduce((a, b) => a > b ? a : b);
+
+      maxY =
+          [maxY, ingresos, gastos, saldo.abs()].reduce((a, b) => a > b ? a : b);
     });
 
-    // Calcular totales
+    // Calculamos los totales
     final totalIngresos = spotsIngresos.fold(0.0, (sum, spot) => sum + spot.y);
     final totalGastos = spotsGastos.fold(0.0, (sum, spot) => sum + spot.y);
     final saldoTotal = totalIngresos - totalGastos;
@@ -111,7 +115,8 @@ class GraficoAhorros extends StatelessWidget {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: esModoOscuro ? Colors.grey[800] : Colors.grey[200],
                   borderRadius: BorderRadius.circular(20),
@@ -127,7 +132,7 @@ class GraficoAhorros extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Gráfico
           Expanded(
             child: LineChart(
@@ -144,15 +149,19 @@ class GraficoAhorros extends StatelessWidget {
                 ),
                 titlesData: FlTitlesData(
                   show: true,
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 22,
-                      interval: _calcularIntervaloTrimestral(quarterData.keys.toList()),
+                      interval: _calcularIntervaloTrimestral(
+                          quarterData.keys.toList()),
                       getTitlesWidget: (value, meta) {
-                        final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                        final date =
+                            DateTime.fromMillisecondsSinceEpoch(value.toInt());
                         return Text(
                           'Q${(date.month - 1) ~/ 3 + 1}\n${date.year}',
                           textAlign: TextAlign.center,
@@ -199,7 +208,10 @@ class GraficoAhorros extends StatelessWidget {
                     belowBarData: BarAreaData(
                       show: true,
                       gradient: LinearGradient(
-                        colors: [colorIngresos.withOpacity(0.15), Colors.transparent],
+                        colors: [
+                          colorIngresos.withOpacity(0.15),
+                          Colors.transparent
+                        ],
                         stops: [0.1, 1.0],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -217,7 +229,10 @@ class GraficoAhorros extends StatelessWidget {
                     belowBarData: BarAreaData(
                       show: true,
                       gradient: LinearGradient(
-                        colors: [colorGastos.withOpacity(0.15), Colors.transparent],
+                        colors: [
+                          colorGastos.withOpacity(0.15),
+                          Colors.transparent
+                        ],
                         stops: [0.1, 1.0],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -238,16 +253,25 @@ class GraficoAhorros extends StatelessWidget {
                 lineTouchData: LineTouchData(
                   enabled: true,
                   touchTooltipData: LineTouchTooltipData(
-                    tooltipMargin: 16.0, // Añadido para empujar el tooltip hacia abajo
-                    getTooltipColor: (_) => esModoOscuro ? Colors.black.withOpacity(0.85) : Colors.white.withOpacity(0.85),
+                    tooltipMargin: 16.0,
+                    getTooltipColor: (_) => esModoOscuro
+                        ? Colors.black.withOpacity(0.85)
+                        : Colors.white.withOpacity(0.85),
                     tooltipRoundedRadius: 8,
-                    tooltipPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    tooltipPadding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((barSpot) {
-                        final date = DateTime.fromMillisecondsSinceEpoch(barSpot.x.toInt());
-                        final tipo = ['Ingresos', 'Gastos', 'Saldo'][barSpot.barIndex];
-                        final color = [colorIngresos, colorGastos, colorSaldo][barSpot.barIndex];
-                        
+                        final date = DateTime.fromMillisecondsSinceEpoch(
+                            barSpot.x.toInt());
+                        final tipo =
+                            ['Ingresos', 'Gastos', 'Saldo'][barSpot.barIndex];
+                        final color = [
+                          colorIngresos,
+                          colorGastos,
+                          colorSaldo
+                        ][barSpot.barIndex];
+
                         return LineTooltipItem(
                           tipo,
                           TextStyle(
@@ -257,19 +281,24 @@ class GraficoAhorros extends StatelessWidget {
                           ),
                           children: [
                             TextSpan(
-                              text: '\n${NumberFormat.currency(locale: 'es', symbol: '€').format(barSpot.y)}',
+                              text:
+                                  '\n${NumberFormat.currency(locale: 'es', symbol: '€').format(barSpot.y)}',
                               style: TextStyle(
-                                color: esModoOscuro ? Colors.white : Colors.black,
+                                color:
+                                    esModoOscuro ? Colors.white : Colors.black,
                                 fontSize: 9,
                                 fontWeight: FontWeight.normal,
                               ),
                             ),
                             TextSpan(
-                              text: '\nQ${(date.month - 1) ~/ 3 + 1} ${date.year}',
+                              text:
+                                  '\nQ${(date.month - 1) ~/ 3 + 1} ${date.year}',
                               style: TextStyle(
-                                color: esModoOscuro ? Colors.white70 : Colors.black54,
+                                color: esModoOscuro
+                                    ? Colors.white70
+                                    : Colors.black54,
                                 fontSize: 8,
-                                height: 1.4, 
+                                height: 1.4,
                               ),
                             ),
                           ],
@@ -298,20 +327,25 @@ class GraficoAhorros extends StatelessWidget {
     );
   }
 
+  //Metodo para calcular el intervalo entre trimestres
   double _calcularIntervaloTrimestral(List<DateTime> quarters) {
     if (quarters.length <= 1) return 1;
-    // Devuelve la diferencia en milisegundos para un trimestre (aproximado)
-    // Esto asegura que se muestren etiquetas para cada trimestre si hay espacio
-    return quarters.length > 1 ? (quarters[1].millisecondsSinceEpoch - quarters[0].millisecondsSinceEpoch).toDouble() : const Duration(days: 90).inMilliseconds.toDouble();
+    return quarters.length > 1
+        ? (quarters[1].millisecondsSinceEpoch -
+                quarters[0].millisecondsSinceEpoch)
+            .toDouble()
+        : const Duration(days: 90).inMilliseconds.toDouble();
   }
 
+  //Metodo para formatear el valor
   String _formatearValor(double valor) {
-    if (valor >= 1000000) return '${(valor/1000000).toStringAsFixed(1)}M';
-    if (valor >= 1000) return '${(valor/1000).toStringAsFixed(1)}K';
+    if (valor >= 1000000) return '${(valor / 1000000).toStringAsFixed(1)}M';
+    if (valor >= 1000) return '${(valor / 1000).toStringAsFixed(1)}K';
     return valor.toInt().toString();
   }
 }
 
+//Clase para la leyenda
 class _LeyendaItem extends StatelessWidget {
   final Color color;
   final String texto;

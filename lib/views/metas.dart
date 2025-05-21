@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart'; // For CupertinoColors
 import 'package:tfg_ivandelllanoblanco/components/dialogoMetas.dart';
 import 'package:tfg_ivandelllanoblanco/components/eliminar_metas.dart';
 import 'package:tfg_ivandelllanoblanco/components/mensaje_listametas_vacia.dart';
@@ -57,7 +56,8 @@ class MetasViewState extends State<MetasVista> {
                 padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
                 child: Text(
                   "Lista de Metas",
-                  style: textTheme.titleLarge?.copyWith(color: colorScheme.onSurface),
+                  style: textTheme.titleLarge
+                      ?.copyWith(color: colorScheme.onSurface),
                 ),
               ),
               Expanded(
@@ -72,7 +72,8 @@ class MetasViewState extends State<MetasVista> {
                   padding: const EdgeInsets.all(16.0),
                   child: Card(
                     elevation: 0.5,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0)),
                     color: colorScheme.surfaceContainerLowest,
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -80,18 +81,21 @@ class MetasViewState extends State<MetasVista> {
                         children: [
                           Text(
                             "¿Quieres aprender a llegar a tus objetivos más rápido? Consulta estos cursos:",
-                            style: textTheme.titleMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                            style: textTheme.titleMedium
+                                ?.copyWith(color: colorScheme.onSurfaceVariant),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.primary, // Ensure theme's primary color
-                              foregroundColor: theme.colorScheme.onPrimary, // Ensure good contrast
-                              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                              textStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+                              backgroundColor: theme.colorScheme.primary,
+                              foregroundColor: theme.colorScheme.onPrimary,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 30, vertical: 15),
+                              textStyle: textTheme.labelLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
                             ),
-                            onPressed: () => controlador.lanzarNavegador(), // Added missing onPressed
+                            onPressed: () => controlador.lanzarNavegador(),
                             child: const Text("Explorar Ahora"),
                           ),
                         ],
@@ -122,27 +126,38 @@ class MetasViewState extends State<MetasVista> {
           child: Wrap(
             children: <Widget>[
               ListTile(
-                leading: Icon(Icons.edit_note, color: theme.colorScheme.primary),
-                title: Text('Actualizar Meta', style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurface)),
+                leading:
+                    Icon(Icons.edit_note, color: theme.colorScheme.primary),
+                title: Text('Actualizar Meta',
+                    style: theme.textTheme.bodyLarge
+                        ?.copyWith(color: theme.colorScheme.onSurface)),
                 onTap: () {
-                  Navigator.pop(context); // Cierra el bottom sheet
+                  Navigator.pop(context);
                   mostrarDialogoCrearModificarMeta(context, meta: meta);
                 },
               ),
               ListTile(
-                leading: Icon(Icons.delete_outline, color: theme.colorScheme.error),
-                title: Text('Eliminar Meta', style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.error)),
+                leading:
+                    Icon(Icons.delete_outline, color: theme.colorScheme.error),
+                title: Text('Eliminar Meta',
+                    style: theme.textTheme.bodyLarge
+                        ?.copyWith(color: theme.colorScheme.error)),
                 onTap: () {
-                  Navigator.pop(context); // Cierra el bottom sheet
+                  Navigator.pop(context);
                   eliminarItemMeta(meta['id']);
                 },
               ),
-              Divider(height: 1, color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+              Divider(
+                  height: 1,
+                  color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
               ListTile(
-                leading: Icon(Icons.cancel_outlined, color: theme.colorScheme.onSurfaceVariant),
-                title: Text('Cancelar', style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                leading: Icon(Icons.cancel_outlined,
+                    color: theme.colorScheme.onSurfaceVariant),
+                title: Text('Cancelar',
+                    style: theme.textTheme.bodyLarge
+                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                 onTap: () {
-                  Navigator.pop(context); // Cierra el bottom sheet
+                  Navigator.pop(context);
                 },
               ),
             ],
@@ -153,8 +168,7 @@ class MetasViewState extends State<MetasVista> {
   }
 
   void eliminarItemMeta(int id) {
-    EliminarMetaDialog.eliminarItemMeta(
-        context, id, controlador, _cargarMetas);
+    EliminarMetaDialog.eliminarItemMeta(context, id, controlador, _cargarMetas);
   }
 
   void mostrarDialogoCrearModificarMeta(BuildContext context,

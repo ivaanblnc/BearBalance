@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:tfg_ivandelllanoblanco/models/paginaInicio.dart';
 import 'package:tfg_ivandelllanoblanco/views/perfilUsuario.dart';
 
@@ -25,18 +25,18 @@ class PaginaInicioControlador {
     try {
       Navigator.push(
         context,
-        CupertinoPageRoute(
+        MaterialPageRoute(
           builder: (context) => PerfilVista(),
         ),
       );
     } catch (e) {
-      showCupertinoDialog(
+      showDialog(
         context: context,
-        builder: (context) => CupertinoAlertDialog(
+        builder: (context) => AlertDialog(
           title: const Text('Error'),
           content: const Text('Error al obtener datos del usuario.'),
           actions: [
-            CupertinoDialogAction(
+            TextButton(
               child: const Text('Aceptar'),
               onPressed: () => Navigator.of(context).pop(),
             ),

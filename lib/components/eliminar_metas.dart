@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart'; // For CupertinoColors
+import 'package:flutter/cupertino.dart';
 import '../controllers/metascontrollador.dart';
 
 class EliminarMetaDialog {
@@ -18,7 +18,6 @@ class EliminarMetaDialog {
           TextButton(
             onPressed: () {
               controlador.eliminarMeta(id, cargarMetas);
-              // cargarMetas(); // This is already called within controlador.eliminarMeta via the callback
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(
