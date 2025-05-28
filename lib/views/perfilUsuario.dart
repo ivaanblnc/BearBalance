@@ -15,7 +15,6 @@ class PerfilVista extends StatefulWidget {
 }
 
 class _PerfilVistaState extends State<PerfilVista> {
-  // Instancia del controlador para manejar la lógica del perfil
   final PerfilControlador controlador = PerfilControlador();
 
   // Variables para almacenar los datos del usuario y la URL de la imagen del perfil
@@ -48,14 +47,41 @@ class _PerfilVistaState extends State<PerfilVista> {
   }
 
   // Metodo para actualizar un campo de los datos del usuario
-  Future<void> _actualizarCampo(String nombreColumna, String nuevoValor) async {
-    // Llamamos al controlador para actualizar los datos del usuario
-    final datosActualizados =
-        await controlador.actualizarDatosUsuario({nombreColumna: nuevoValor});
+  Future<bool> _actualizarCampo(String nombreColumna, String nuevoValor) async {
+    // Mostramos un indicador de carga
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
 
-    // Si los datos se actualizan correctamente y el widget está activo, se actualiza el estado
-    if (datosActualizados != null && mounted) {
-      setState(() => datosUsuario = datosActualizados);
+    try {
+      // Llamamos al controlador para actualizar los datos del usuario
+      final resultado = await controlador
+          .actualizarDatosUsuario({nombreColumna: nuevoValor}, context);
+
+      // Cerramos el indicador de carga
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      // Si la actualización fue exitosa y el widget está activo, se actualiza el estado
+      if (resultado['success'] && mounted) {
+        setState(() => datosUsuario = resultado['data']);
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      // En caso de error, cerramos el indicador de carga
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      return false;
     }
   }
 

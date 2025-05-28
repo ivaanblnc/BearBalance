@@ -1,82 +1,50 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import '../models/perfilModelo.dart';
 
 class PerfilControlador {
-  final _supabase = Supabase.instance.client;
+  // Instancia del modelo de perfil
+  final PerfilModelo _perfilModelo = PerfilModelo();
 
-//Metodo para obtener los datos del usuario
+  // Método para obtener los datos del usuario
   Future<Map<String, dynamic>?> obtenerDatosUsuario() async {
-    try {
-      //Obtenemos el usuario actual y comprobamos si es nulo
-      final usuarioActual = _supabase.auth.currentUser;
-      if (usuarioActual == null) {
-        return null;
-      }
-      //Obtenemos los datos del usuario de la base de datos
-      final respuesta = await _supabase
-          .from('usuarios')
-          .select('*')
-          .eq('id', usuarioActual.id)
-          .maybeSingle();
-
-      return respuesta;
-    } catch (e) {
-      return null;
-    }
+    return await _perfilModelo.obtenerDatosUsuario();
   }
 
-  //Metodo para obtener los nombres de usuario registrados
+  // Método para obtener los nombres de usuario registrados
   Future<List<Map<String, dynamic>>?> obtenerNombresUsuario() async {
-    try {
-      final respuesta = await _supabase
-          .from('usuarios')
-          .select('nombre_usuario') as List<dynamic>;
-
-      return respuesta.cast<Map<String, dynamic>>();
-    } catch (e) {
-      return null;
-    }
+    return await _perfilModelo.obtenerNombresUsuario();
   }
 
-  //Metodo para actualizar los datos del usuario
-  Future<Map<String, dynamic>?> actualizarDatosUsuario(
-      Map<String, dynamic> datosActualizados) async {
-    try {
-      //Obtenemos el usuario actual y comprobamos si es nulo
-      final usuarioActual = _supabase.auth.currentUser;
-      if (usuarioActual == null) {
-        return null;
-      }
-      //Actualizamos los datos del usuario en la base de datos
-      final respuesta = await _supabase
-          .from('usuarios')
-          .update(datosActualizados)
-          .eq('id', usuarioActual.id);
-
-      //almacenamos los nuevos datos actualizados
-      final usuarioActualizado = await _supabase
-          .from('usuarios')
-          .select('*')
-          .eq('id', usuarioActual.id)
-          .maybeSingle();
-
-      return usuarioActualizado;
-    } catch (e) {
-      return null;
+  // Método para actualizar los datos del usuario
+  Future<Map<String, dynamic>> actualizarDatosUsuario(
+      Map<String, dynamic> datosActualizados, BuildContext context) async {
+    final resultado = await _perfilModelo.actualizarDatosUsuario(datosActualizados);
+    
+    // Si hay un error y estamos actualizando el nombre de usuario, mostramos un mensaje
+    if (!resultado['success'] && 
+        datosActualizados.containsKey('nombre_usuario') && 
+        resultado['message'] == 'El nombre de usuario ya existe') {
+      
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No se puede actualizar: El nombre de usuario ya existe'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
+    
+    return resultado;
   }
 
-  //Metodo para cerrar la sesion del usuario
+  // Método para cerrar la sesión del usuario
   Future<void> cerrarSesion(BuildContext context) async {
     try {
-      // Cierra la sesión en Supabase
-      await _supabase.auth.signOut();
-      print("Sesión cerrada en Supabase");
-
-      // Mandamos al usuario a la pantalla de inicio de sesión
+      await _perfilModelo.cerrarSesion();
       // ignore: use_build_context_synchronously
       Navigator.of(context, rootNavigator: true).pushReplacementNamed('/login');
     } catch (e) {
@@ -84,7 +52,7 @@ class PerfilControlador {
     }
   }
 
-// Método para cargar imagen de la galería del dispositivo
+  // Método para cargar imagen de la galería del dispositivo
   Future<dynamic> CargarImagen() async {
     final ImagePicker picker = ImagePicker();
     final imagenSeleccionada =
@@ -103,63 +71,9 @@ class PerfilControlador {
     }
   }
 
-// Método para subir la imagen a Supabase Storage
-  Future<String?> subirImagen(dynamic imagen) async {
-    try {
-      // Bloqueamos subida si es desde web
-      if (kIsWeb) {
-        print('Subida de imágenes no permitida desde la web');
-        return null;
-      }
-
-      final nombreArchivo =
-          'fotoPerfil/${DateTime.now().millisecondsSinceEpoch}.jpg';
-
-      if (imagen is File) {
-        await _supabase.storage
-            .from('imagenesperfil')
-            .upload(nombreArchivo, imagen);
-        return nombreArchivo;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      print('Error al subir la imagen: $e');
-      return null;
-    }
-  }
-
-// Obtener URL pública de una imagen ya subida
-  Future<String?> obtenerUrlPublica(String nombreArchivo) async {
-    try {
-      final urlPublica =
-          _supabase.storage.from('imagenesperfil').getPublicUrl(nombreArchivo);
-      return urlPublica;
-    } catch (e) {
-      print('Error al obtener la URL pública: $e');
-      return null;
-    }
-  }
-
-// Actualiza la URL de imagen del perfil del usuario actual en la BD
-  Future<void> actualizarImagenPerfil(String urlImagen) async {
-    try {
-      final usuarioActual = _supabase.auth.currentUser;
-      if (usuarioActual == null) {
-        throw Exception('Usuario no autenticado');
-      }
-
-      await _supabase
-          .from('usuarios')
-          .update({'imagen_perfil': urlImagen}).eq('id', usuarioActual.id);
-    } catch (e) {
-      print('Error al actualizar la imagen de perfil: $e');
-    }
-  }
-
-// Netodo que implementa la subida de imagen y actualización de la URL en la BD
+  // Método que implementa la subida de imagen y actualización de la URL en la BD
   Future<void> subirYActualizarImagen(
-      Function(String?) updateImageUrl, context) async {
+      Function(String?) updateImageUrl, BuildContext context) async {
     final imagen = await CargarImagen();
     if (imagen != null) {
       // En la web mostramos una alerta porque no está permitido
@@ -181,13 +95,11 @@ class PerfilControlador {
         return;
       }
 
-      // Subimos la imagen
-      final nombreArchivo = await subirImagen(imagen);
+      final nombreArchivo = await _perfilModelo.subirImagen(imagen);
       if (nombreArchivo != null) {
-        // Obtenemos la URL
-        final urlImagen = await obtenerUrlPublica(nombreArchivo);
+        final urlImagen = await _perfilModelo.obtenerUrlPublica(nombreArchivo);
         if (urlImagen != null) {
-          await actualizarImagenPerfil(urlImagen);
+          await _perfilModelo.actualizarImagenPerfil(urlImagen);
           print('Imagen de perfil actualizada con éxito');
           updateImageUrl(urlImagen);
         } else {

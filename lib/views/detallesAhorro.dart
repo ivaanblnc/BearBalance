@@ -17,7 +17,6 @@ class DetalleAhorroVista extends StatelessWidget {
     final formatoFecha = DateFormat('dd/MM/yyyy HH:mm', 'es_ES');
     final formatoMoneda = NumberFormat.currency(locale: 'es_ES', symbol: '€');
 
-    // Colores para ingreso/gasto (consistente con el gráfico)
     final positiveColor = Color(0xFF66BB6A);
     final negativeColor = Color(0xFFEF5350);
 

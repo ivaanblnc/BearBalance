@@ -6,7 +6,7 @@ import 'package:tfg_ivandelllanoblanco/models/loginUsuario.dart';
 
 class DetallesPerfil extends StatefulWidget {
   final Map<String, dynamic> datosUsuario;
-  final Future<void> Function(String columnaNombre, String nuevoValor)
+  final Future<bool> Function(String columnaNombre, String nuevoValor)
       onCampoActualizado;
   final BuildContext contexto;
 
@@ -200,14 +200,28 @@ class _DetallesPerfilState extends State<DetallesPerfil> {
                                     }
                                     opSuccess = true;
                                   } else {
-                                    await widget.onCampoActualizado(
-                                        nombreCampo, nuevoValor);
-                                    if (mounted) {
-                                      setState(() {
-                                        valorController.text = nuevoValor;
-                                      });
+                                    // Llamamos al método de actualización y esperamos su resultado
+                                    bool actualizacionExitosa =
+                                        await widget.onCampoActualizado(
+                                            nombreCampo, nuevoValor);
+
+                                    if (actualizacionExitosa) {
+                                      if (mounted) {
+                                        setState(() {
+                                          valorController.text = nuevoValor;
+                                        });
+                                      }
+                                      opSuccess = true;
+                                    } else {
+                                      // La actualización falló, mostramos un mensaje de error
+                                      errorMsg =
+                                          'No se pudo actualizar el $etiqueta';
+                                      if (nombreCampo == 'nombre_usuario') {
+                                        errorMsg =
+                                            'El nombre de usuario ya existe';
+                                      }
+                                      opSuccess = false;
                                     }
-                                    opSuccess = true;
                                   }
                                 } catch (e) {
                                   errorMsg = e
