@@ -63,6 +63,7 @@ BearBalance/
 │   └── my_custom_scroll_behavior.dart         
 ├── pubspec.yaml          
 └── README.md             
+````
 
 ## 🚀 Instalación y ejecución local
 
