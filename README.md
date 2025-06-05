@@ -42,25 +42,27 @@ Ofrece un completo seguimiento de tus movimientos económicos, metas financieras
 - **Flutter** + **Dart**
 - **Supabase** (Auth, Realtime Database, Storage)
 - **Material Design** para UI moderna
-- **Gráficos personalizados** con `fl_chart` o similar
-- **Gestión de estado** con `Provider`, `Riverpod`, `GetX` o similar (dependiendo de tu elección)
+- **Gráficos personalizados** con `fl_chart`
 - **Responsive UI** para móvil y tablet
 
 ---
 
 ## 📂 Estructura del proyecto
 
+```plaintext
 BearBalance/
-├── assets/ # Imágenes y recursos estáticos
+├── assets/                ¡
 ├── lib/
-│ ├── models/ # Modelos de datos (Movimiento, Meta, Usuario)
-│ ├── screens/ # Pantallas: Home, Movimientos, Metas, Perfil
-│ ├── widgets/ # Componentes reutilizables
-│ ├── services/ # Comunicación con Supabase (CRUD, Auth)
-│ ├── utils/ # Constantes, helpers y funciones auxiliares
-│ └── main.dart # Entry point de la aplicación
-├── pubspec.yaml # Declaración de paquetes y recursos
-└── README.md # Este archivo
+│   ├── models/            
+│   ├── views/           
+│   ├── widgets/         
+│   ├── controllers/          
+│   ├── components/
+│   ├── entidades/           
+│   └── main.dart
+│   └── my_custom_scroll_behavior.dart         
+├── pubspec.yaml          
+└── README.md             
 
 ## 🚀 Instalación y ejecución local
 
